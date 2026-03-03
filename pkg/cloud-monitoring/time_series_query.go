@@ -6,10 +6,10 @@ import (
 	"strings"
 	"time"
 
+	gcmTime "github.com/grafana/grafana-cloud-monitoring-datasource/pkg/cloud-monitoring/time"
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
 	"github.com/grafana/grafana-plugin-sdk-go/data"
-	gcmTime "github.com/grafana/grafana-cloud-monitoring-datasource/pkg/cloud-monitoring/time"
 )
 
 func (timeSeriesQuery *cloudMonitoringTimeSeriesQuery) appendGraphPeriod(req *backend.QueryDataRequest) string {
@@ -27,7 +27,7 @@ func (timeSeriesQuery *cloudMonitoringTimeSeriesQuery) appendGraphPeriod(req *ba
 }
 
 func (timeSeriesQuery *cloudMonitoringTimeSeriesQuery) run(ctx context.Context, req *backend.QueryDataRequest,
-	s *Service, dsInfo datasourceInfo, logger log.Logger) (*backend.DataResponse, any, string, error) {
+	ds *DataSource, dsInfo datasourceInfo, logger log.Logger) (*backend.DataResponse, any, string, error) {
 	timeSeriesQuery.parameters.Query += timeSeriesQuery.appendGraphPeriod(req)
 	from := timeSeriesQuery.timeRange.From
 	to := timeSeriesQuery.timeRange.To
@@ -36,7 +36,7 @@ func (timeSeriesQuery *cloudMonitoringTimeSeriesQuery) run(ctx context.Context, 
 	requestBody := map[string]any{
 		"query": timeSeriesQuery.parameters.Query,
 	}
-	return runTimeSeriesRequest(ctx, req, s, dsInfo, timeSeriesQuery.parameters.ProjectName, nil, requestBody, logger, timeSeriesQuery.timeRange)
+	return runTimeSeriesRequest(ctx, req, ds, dsInfo, timeSeriesQuery.parameters.ProjectName, nil, requestBody, logger, timeSeriesQuery.timeRange)
 }
 
 func (timeSeriesQuery *cloudMonitoringTimeSeriesQuery) parseResponse(queryRes *backend.DataResponse,

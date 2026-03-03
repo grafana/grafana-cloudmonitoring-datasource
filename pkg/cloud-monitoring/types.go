@@ -18,7 +18,7 @@ import (
 
 type (
 	cloudMonitoringQueryExecutor interface {
-		run(ctx context.Context, req *backend.QueryDataRequest, s *Service, dsInfo datasourceInfo, logger log.Logger) (
+		run(ctx context.Context, req *backend.QueryDataRequest, ds *DataSource, dsInfo datasourceInfo, logger log.Logger) (
 			*backend.DataResponse, any, string, error)
 		parseResponse(dr *backend.DataResponse, data any, executedQueryString string, logger log.Logger) error
 		buildDeepLink() string

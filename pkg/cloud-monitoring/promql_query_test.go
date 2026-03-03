@@ -9,17 +9,15 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/grafana/grafana-plugin-sdk-go/backend"
-	"github.com/grafana/grafana-plugin-sdk-go/backend/datasource"
-	"github.com/grafana/grafana-plugin-sdk-go/backend/instancemgmt"
-	"github.com/grafana/grafana-plugin-sdk-go/experimental"
 	"github.com/grafana/grafana-cloud-monitoring-datasource/pkg/cloud-monitoring/kinds/dataquery"
+	"github.com/grafana/grafana-plugin-sdk-go/backend"
+	"github.com/grafana/grafana-plugin-sdk-go/experimental"
 	"github.com/stretchr/testify/require"
 )
 
 func TestPromqlQuery(t *testing.T) {
 	t.Run("parseResponse is returned", func(t *testing.T) {
-		service := &Service{}
+		ds := &DataSource{}
 		fileData, err := os.ReadFile("./test-data/11-prom-response.json")
 		reader := strings.NewReader(string(fileData))
 		res := http.Response{Body: io.NopCloser(reader)}
@@ -30,7 +28,7 @@ func TestPromqlQuery(t *testing.T) {
 		dataRes := &backend.DataResponse{}
 		query := &cloudMonitoringProm{}
 		parsedProm := parseProm(&res)
-		err = query.parseResponse(dataRes, parsedProm, "", service.logger)
+		err = query.parseResponse(dataRes, parsedProm, "", ds.logger)
 		require.NoError(t, err)
 		frame := dataRes.Frames[0]
 		experimental.CheckGoldenJSONFrame(t, "test-data", "parse-response-is-returned", frame, false)
@@ -41,12 +39,8 @@ func TestPromqlQuery(t *testing.T) {
 			authenticationType: gceAuthentication,
 		}
 
-		im := datasource.NewInstanceManager(func(_ context.Context, s backend.DataSourceInstanceSettings) (instancemgmt.Instance, error) {
-			return &dsInfo, nil
-		})
-
-		service := &Service{
-			im: im,
+		ds := &DataSource{
+			info: &dsInfo,
 			gceDefaultProjectGetter: func(ctx context.Context, scope string) (string, error) {
 				return "", fmt.Errorf("not found!")
 			},
@@ -58,13 +52,13 @@ func TestPromqlQuery(t *testing.T) {
 			},
 		}
 
-		dr, parsedProm, _, err := query.run(context.Background(), &backend.QueryDataRequest{}, service, dsInfo, service.logger)
+		dr, parsedProm, _, err := query.run(context.Background(), &backend.QueryDataRequest{}, ds, dsInfo, ds.logger)
 		require.NoError(t, err)
 		require.Error(t, dr.Error)
 		require.Equal(t, "not found!", dr.Error.Error())
 		require.True(t, backend.IsDownstreamError(dr.Error))
 
-		err = query.parseResponse(dr, parsedProm, "", service.logger)
+		err = query.parseResponse(dr, parsedProm, "", ds.logger)
 		require.NoError(t, err)
 	})
 }

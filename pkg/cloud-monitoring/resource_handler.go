@@ -25,18 +25,18 @@ const resourceManagerPath = "/v1/projects"
 
 type processResponse func(body []byte) ([]json.RawMessage, string, error)
 
-func (s *Service) newResourceMux() *http.ServeMux {
+func (ds *DataSource) newResourceMux() *http.ServeMux {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/gceDefaultProject", s.getGCEDefaultProject)
-	mux.HandleFunc("/metricDescriptors/", s.handleResourceReq(cloudMonitor, processMetricDescriptors))
-	mux.HandleFunc("/services/", s.handleResourceReq(cloudMonitor, processServices))
-	mux.HandleFunc("/slo-services/", s.handleResourceReq(cloudMonitor, processSLOs))
-	mux.HandleFunc("/projects", s.handleResourceReq(resourceManager, processProjects))
+	mux.HandleFunc("/gceDefaultProject", ds.getGCEDefaultProject)
+	mux.HandleFunc("/metricDescriptors/", ds.handleResourceReq(cloudMonitor, processMetricDescriptors))
+	mux.HandleFunc("/services/", ds.handleResourceReq(cloudMonitor, processServices))
+	mux.HandleFunc("/slo-services/", ds.handleResourceReq(cloudMonitor, processSLOs))
+	mux.HandleFunc("/projects", ds.handleResourceReq(resourceManager, processProjects))
 	return mux
 }
 
-func (s *Service) getGCEDefaultProject(rw http.ResponseWriter, req *http.Request) {
-	project, err := s.gceDefaultProjectGetter(req.Context(), resourceManagerScope)
+func (ds *DataSource) getGCEDefaultProject(rw http.ResponseWriter, req *http.Request) {
+	project, err := ds.gceDefaultProjectGetter(req.Context(), resourceManagerScope)
 	if err != nil {
 		writeErrorResponse(rw, http.StatusBadRequest, fmt.Sprintf("unexpected error %v", err))
 		return
@@ -50,9 +50,9 @@ func (s *Service) getGCEDefaultProject(rw http.ResponseWriter, req *http.Request
 	writeResponseBytes(rw, http.StatusOK, encoded)
 }
 
-func (s *Service) handleResourceReq(subDataSource string, responseFn processResponse) func(rw http.ResponseWriter, req *http.Request) {
+func (ds *DataSource) handleResourceReq(subDataSource string, responseFn processResponse) func(rw http.ResponseWriter, req *http.Request) {
 	return func(rw http.ResponseWriter, req *http.Request) {
-		client, code, err := s.setRequestVariables(req, subDataSource)
+		client, code, err := ds.setRequestVariables(req, subDataSource)
 		if err != nil {
 			writeErrorResponse(rw, code, fmt.Sprintf("unexpected error %v", err))
 			return
@@ -345,20 +345,15 @@ func buildResponse(responses []json.RawMessage, encoding string) ([]byte, error)
 	return encode(encoding, body)
 }
 
-func (s *Service) setRequestVariables(req *http.Request, subDataSource string) (*http.Client, int, error) {
-	s.logger.Debug("Received resource call", "url", req.URL.String(), "method", req.Method)
+func (ds *DataSource) setRequestVariables(req *http.Request, subDataSource string) (*http.Client, int, error) {
+	ds.logger.Debug("Received resource call", "url", req.URL.String(), "method", req.Method)
 
 	newPath, err := getTarget(req.URL.Path)
 	if err != nil {
 		return nil, http.StatusBadRequest, err
 	}
 
-	dsInfo, err := s.getDataSourceFromHTTPReq(req)
-	if err != nil {
-		return nil, http.StatusBadRequest, err
-	}
-
-	serviceURL, err := url.Parse(dsInfo.services[subDataSource].url)
+	serviceURL, err := url.Parse(ds.info.services[subDataSource].url)
 	if err != nil {
 		return nil, http.StatusBadRequest, err
 	}
@@ -366,7 +361,7 @@ func (s *Service) setRequestVariables(req *http.Request, subDataSource string) (
 	req.URL.Host = serviceURL.Host
 	req.URL.Scheme = serviceURL.Scheme
 
-	return dsInfo.services[subDataSource].client, 0, nil
+	return ds.info.services[subDataSource].client, 0, nil
 }
 
 func getTarget(original string) (target string, err error) {
@@ -396,18 +391,4 @@ func writeErrorResponse(rw http.ResponseWriter, code int, msg string) {
 	}
 	json, _ := json.Marshal(errorBody)
 	writeResponseBytes(rw, code, json)
-}
-
-func (s *Service) getDataSourceFromHTTPReq(req *http.Request) (*datasourceInfo, error) {
-	ctx := req.Context()
-	pluginContext := backend.PluginConfigFromContext(ctx)
-	i, err := s.im.Get(ctx, pluginContext)
-	if err != nil {
-		return nil, nil
-	}
-	ds, ok := i.(*datasourceInfo)
-	if !ok {
-		return nil, fmt.Errorf("unable to convert datasource from service instance")
-	}
-	return ds, nil
 }

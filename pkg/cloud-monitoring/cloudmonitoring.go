@@ -16,7 +16,6 @@ import (
 	"github.com/huandu/xstrings"
 
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
-	"github.com/grafana/grafana-plugin-sdk-go/backend/datasource"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/httpclient"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/instancemgmt"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
@@ -60,31 +59,32 @@ const (
 	perSeriesAlignerDefault   = "ALIGN_MEAN"
 )
 
-func ProvideService(httpClientProvider *httpclient.Provider) *Service {
-	s := &Service{
-		httpClientProvider: *httpClientProvider,
-		im:                 datasource.NewInstanceManager(newInstanceSettings(*httpClientProvider)),
+func NewDatasource(ctx context.Context, settings backend.DataSourceInstanceSettings) (instancemgmt.Instance, error) {
+	hcp := httpclient.NewProvider()
+	info, err := newDatasourceInfo(*hcp, ctx, settings)
+	if err != nil {
+		return nil, err
+	}
+
+	ds := &DataSource{
+		httpClientProvider: *hcp,
+		info:               info,
 		logger:             backend.NewLoggerWith("logger", "tsdb.cloudmonitoring"),
 
 		gceDefaultProjectGetter: utils.GCEDefaultProject,
 	}
 
-	s.resourceHandler = httpadapter.New(s.newResourceMux())
+	ds.resourceHandler = httpadapter.New(ds.newResourceMux())
 
-	return s
+	return ds, nil
 }
 
-func (s *Service) CallResource(ctx context.Context, req *backend.CallResourceRequest, sender backend.CallResourceResponseSender) error {
-	return s.resourceHandler.CallResource(ctx, req, sender)
+func (ds *DataSource) CallResource(ctx context.Context, req *backend.CallResourceRequest, sender backend.CallResourceResponseSender) error {
+	return ds.resourceHandler.CallResource(ctx, req, sender)
 }
 
-func (s *Service) CheckHealth(ctx context.Context, req *backend.CheckHealthRequest) (*backend.CheckHealthResult, error) {
-	dsInfo, err := s.getDSInfo(ctx, req.PluginContext)
-	if err != nil {
-		return nil, err
-	}
-
-	defaultProject, err := s.getDefaultProject(ctx, *dsInfo)
+func (ds *DataSource) CheckHealth(ctx context.Context, req *backend.CheckHealthRequest) (*backend.CheckHealthResult, error) {
+	defaultProject, err := ds.getDefaultProject(ctx, *ds.info)
 	if err != nil {
 		return &backend.CheckHealthResult{
 			Status:  backend.HealthStatusError,
@@ -92,19 +92,19 @@ func (s *Service) CheckHealth(ctx context.Context, req *backend.CheckHealthReque
 		}, nil
 	}
 
-	url := fmt.Sprintf("%s/v3/projects/%s/metricDescriptors", dsInfo.services[cloudMonitor].url, defaultProject)
+	url := fmt.Sprintf("%s/v3/projects/%s/metricDescriptors", ds.info.services[cloudMonitor].url, defaultProject)
 	request, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := dsInfo.services[cloudMonitor].client.Do(request)
+	res, err := ds.info.services[cloudMonitor].client.Do(request)
 	if err != nil {
 		return nil, err
 	}
 	defer func() {
 		if err := res.Body.Close(); err != nil {
-			s.logger.Warn("Failed to close response body", "err", err)
+			ds.logger.Warn("Failed to close response body", "err", err)
 		}
 	}()
 
@@ -120,9 +120,9 @@ func (s *Service) CheckHealth(ctx context.Context, req *backend.CheckHealthReque
 	}, nil
 }
 
-type Service struct {
+type DataSource struct {
 	httpClientProvider httpclient.Provider
-	im                 instancemgmt.InstanceManager
+	info               *datasourceInfo
 	logger             log.Logger
 
 	resourceHandler backend.CallResourceHandler
@@ -161,55 +161,53 @@ type datasourceService struct {
 	client *http.Client
 }
 
-func newInstanceSettings(httpClientProvider httpclient.Provider) datasource.InstanceFactoryFunc {
-	return func(ctx context.Context, settings backend.DataSourceInstanceSettings) (instancemgmt.Instance, error) {
-		var jsonData datasourceJSONData
-		err := json.Unmarshal(settings.JSONData, &jsonData)
-		if err != nil {
-			return nil, fmt.Errorf("error reading settings: %w", err)
-		}
-
-		if jsonData.AuthenticationType == "" {
-			jsonData.AuthenticationType = jwtAuthentication
-		}
-
-		dsInfo := &datasourceInfo{
-			id:                          settings.ID,
-			updated:                     settings.Updated,
-			url:                         settings.URL,
-			authenticationType:          jsonData.AuthenticationType,
-			defaultProject:              jsonData.DefaultProject,
-			clientEmail:                 jsonData.ClientEmail,
-			tokenUri:                    jsonData.TokenURI,
-			universeDomain:              jsonData.UniverseDomain,
-			usingImpersonation:          jsonData.UsingImpersonation,
-			serviceAccountToImpersonate: jsonData.ServiceAccountToImpersonate,
-			services:                    map[string]datasourceService{},
-		}
-
-		dsInfo.privateKey, err = utils.GetPrivateKey(&settings)
-		if err != nil {
-			return nil, err
-		}
-
-		opts, err := settings.HTTPClientOptions(ctx)
-		if err != nil {
-			return nil, err
-		}
-
-		for name := range routes {
-			client, err := newHTTPClient(dsInfo, opts, &httpClientProvider, name)
-			if err != nil {
-				return nil, err
-			}
-			dsInfo.services[name] = datasourceService{
-				url:    buildURL(name, dsInfo.universeDomain),
-				client: client,
-			}
-		}
-
-		return dsInfo, nil
+func newDatasourceInfo(httpClientProvider httpclient.Provider, ctx context.Context, settings backend.DataSourceInstanceSettings) (*datasourceInfo, error) {
+	var jsonData datasourceJSONData
+	err := json.Unmarshal(settings.JSONData, &jsonData)
+	if err != nil {
+		return nil, fmt.Errorf("error reading settings: %w", err)
 	}
+
+	if jsonData.AuthenticationType == "" {
+		jsonData.AuthenticationType = jwtAuthentication
+	}
+
+	dsInfo := &datasourceInfo{
+		id:                          settings.ID,
+		updated:                     settings.Updated,
+		url:                         settings.URL,
+		authenticationType:          jsonData.AuthenticationType,
+		defaultProject:              jsonData.DefaultProject,
+		clientEmail:                 jsonData.ClientEmail,
+		tokenUri:                    jsonData.TokenURI,
+		universeDomain:              jsonData.UniverseDomain,
+		usingImpersonation:          jsonData.UsingImpersonation,
+		serviceAccountToImpersonate: jsonData.ServiceAccountToImpersonate,
+		services:                    map[string]datasourceService{},
+	}
+
+	dsInfo.privateKey, err = utils.GetPrivateKey(&settings)
+	if err != nil {
+		return nil, err
+	}
+
+	opts, err := settings.HTTPClientOptions(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	for name := range routes {
+		client, err := newHTTPClient(dsInfo, opts, &httpClientProvider, name)
+		if err != nil {
+			return nil, err
+		}
+		dsInfo.services[name] = datasourceService{
+			url:    buildURL(name, dsInfo.universeDomain),
+			client: client,
+		}
+	}
+
+	return dsInfo, nil
 }
 
 func migrateMetricTypeFilter(metricTypeFilter string, prevFilters any) []string {
@@ -331,8 +329,8 @@ func migrateRequest(req *backend.QueryDataRequest) error {
 
 // QueryData takes in the frontend queries, parses them into the CloudMonitoring query format
 // executes the queries against the CloudMonitoring API and parses the response into data frames
-func (s *Service) QueryData(ctx context.Context, req *backend.QueryDataRequest) (*backend.QueryDataResponse, error) {
-	logger := s.logger.FromContext(ctx)
+func (ds *DataSource) QueryData(ctx context.Context, req *backend.QueryDataRequest) (*backend.QueryDataResponse, error) {
+	logger := ds.logger.FromContext(ctx)
 	if len(req.Queries) == 0 {
 		return nil, fmt.Errorf("query contains no queries")
 	}
@@ -342,30 +340,25 @@ func (s *Service) QueryData(ctx context.Context, req *backend.QueryDataRequest) 
 		return nil, err
 	}
 
-	dsInfo, err := s.getDSInfo(ctx, req.PluginContext)
-	if err != nil {
-		return nil, err
-	}
-
 	// There aren't any possible downstream errors here
-	queries, err := s.buildQueryExecutors(logger, req)
+	queries, err := ds.buildQueryExecutors(logger, req)
 	if err != nil {
 		return nil, err
 	}
 
 	switch req.Queries[0].QueryType {
 	case string(dataquery.QueryTypeANNOTATION):
-		return s.executeAnnotationQuery(ctx, req, *dsInfo, queries, logger)
+		return ds.executeAnnotationQuery(ctx, req, *ds.info, queries, logger)
 	default:
-		return s.executeTimeSeriesQuery(ctx, req, *dsInfo, queries, logger)
+		return ds.executeTimeSeriesQuery(ctx, req, *ds.info, queries, logger)
 	}
 }
 
-func (s *Service) executeTimeSeriesQuery(ctx context.Context, req *backend.QueryDataRequest, dsInfo datasourceInfo, queries []cloudMonitoringQueryExecutor, logger log.Logger) (
+func (ds *DataSource) executeTimeSeriesQuery(ctx context.Context, req *backend.QueryDataRequest, dsInfo datasourceInfo, queries []cloudMonitoringQueryExecutor, logger log.Logger) (
 	*backend.QueryDataResponse, error) {
 	resp := backend.NewQueryDataResponse()
 	for _, queryExecutor := range queries {
-		dr, queryRes, executedQueryString, err := queryExecutor.run(ctx, req, s, dsInfo, logger)
+		dr, queryRes, executedQueryString, err := queryExecutor.run(ctx, req, ds, dsInfo, logger)
 		if err != nil {
 			resp.Responses[queryExecutor.getRefID()] = backend.ErrorResponseWithErrorSource(err)
 			return resp, err
@@ -394,7 +387,7 @@ func queryModel(query backend.DataQuery) (grafanaQuery, error) {
 	return q, nil
 }
 
-func (s *Service) buildQueryExecutors(logger log.Logger, req *backend.QueryDataRequest) ([]cloudMonitoringQueryExecutor, error) {
+func (ds *DataSource) buildQueryExecutors(logger log.Logger, req *backend.QueryDataRequest) ([]cloudMonitoringQueryExecutor, error) {
 	cloudMonitoringQueryExecutors := make([]cloudMonitoringQueryExecutor, 0, len(req.Queries))
 
 	for index, query := range req.Queries {
@@ -587,16 +580,16 @@ func calcBucketBound(bucketOptions cloudMonitoringBucketOptions, n int) string {
 	return bucketBound
 }
 
-func (s *Service) ensureProject(ctx context.Context, dsInfo datasourceInfo, projectName string) (string, error) {
+func (ds *DataSource) ensureProject(ctx context.Context, dsInfo datasourceInfo, projectName string) (string, error) {
 	if projectName != "" {
 		return projectName, nil
 	}
-	return s.getDefaultProject(ctx, dsInfo)
+	return ds.getDefaultProject(ctx, dsInfo)
 }
 
-func (s *Service) getDefaultProject(ctx context.Context, dsInfo datasourceInfo) (string, error) {
+func (ds *DataSource) getDefaultProject(ctx context.Context, dsInfo datasourceInfo) (string, error) {
 	if dsInfo.authenticationType == gceAuthentication {
-		project, err := s.gceDefaultProjectGetter(ctx, cloudMonitorScope)
+		project, err := ds.gceDefaultProjectGetter(ctx, cloudMonitorScope)
 		if err != nil {
 			return project, backend.DownstreamError(err)
 		}
@@ -665,18 +658,4 @@ func addConfigData(frames data.Frames, dl string, unit string, period string, lo
 		}
 	}
 	return frames
-}
-
-func (s *Service) getDSInfo(ctx context.Context, pluginCtx backend.PluginContext) (*datasourceInfo, error) {
-	i, err := s.im.Get(ctx, pluginCtx)
-	if err != nil {
-		return nil, err
-	}
-
-	instance, ok := i.(*datasourceInfo)
-	if !ok {
-		return nil, fmt.Errorf("failed to cast datasource info")
-	}
-
-	return instance, nil
 }

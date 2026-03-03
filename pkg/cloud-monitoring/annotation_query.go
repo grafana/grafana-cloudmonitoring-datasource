@@ -20,10 +20,10 @@ type annotationEvent struct {
 	Text  string
 }
 
-func (s *Service) executeAnnotationQuery(ctx context.Context, req *backend.QueryDataRequest, dsInfo datasourceInfo, queries []cloudMonitoringQueryExecutor, logger log.Logger) (
+func (ds *DataSource) executeAnnotationQuery(ctx context.Context, req *backend.QueryDataRequest, dsInfo datasourceInfo, queries []cloudMonitoringQueryExecutor, logger log.Logger) (
 	*backend.QueryDataResponse, error) {
 	resp := backend.NewQueryDataResponse()
-	dr, queryRes, _, err := queries[0].run(ctx, req, s, dsInfo, logger)
+	dr, queryRes, _, err := queries[0].run(ctx, req, ds, dsInfo, logger)
 	if dr.Error != nil {
 		resp.Responses[queries[0].getRefID()] = backend.ErrorResponseWithErrorSource(dr.Error)
 	}

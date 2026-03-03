@@ -10,17 +10,17 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/grafana/grafana-cloud-monitoring-datasource/pkg/cloud-monitoring/converter"
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
 	"github.com/grafana/grafana-plugin-sdk-go/data"
-	"github.com/grafana/grafana-cloud-monitoring-datasource/pkg/cloud-monitoring/converter"
 	jsoniter "github.com/json-iterator/go"
 )
 
 func (promQLQ *cloudMonitoringProm) run(ctx context.Context, req *backend.QueryDataRequest,
-	s *Service, dsInfo datasourceInfo, logger log.Logger) (*backend.DataResponse, any, string, error) {
+	ds *DataSource, dsInfo datasourceInfo, logger log.Logger) (*backend.DataResponse, any, string, error) {
 	dr := &backend.DataResponse{}
-	projectName, err := s.ensureProject(ctx, dsInfo, promQLQ.parameters.ProjectName)
+	projectName, err := ds.ensureProject(ctx, dsInfo, promQLQ.parameters.ProjectName)
 	if err != nil {
 		dr.Error = err
 		return dr, backend.DataResponse{}, "", nil
@@ -49,7 +49,7 @@ func (promQLQ *cloudMonitoringProm) run(ctx context.Context, req *backend.QueryD
 
 	defer func() {
 		if err := res.Body.Close(); err != nil {
-			s.logger.Error("Failed to close response body", "err", err, "statusSource", backend.ErrorSourceDownstream)
+			ds.logger.Error("Failed to close response body", "err", err, "statusSource", backend.ErrorSourceDownstream)
 		}
 	}()
 

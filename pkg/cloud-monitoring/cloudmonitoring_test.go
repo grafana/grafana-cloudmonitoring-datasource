@@ -10,50 +10,45 @@ import (
 	"testing"
 	"time"
 
-	"github.com/grafana/grafana-plugin-sdk-go/backend"
-	"github.com/grafana/grafana-plugin-sdk-go/backend/datasource"
-	"github.com/grafana/grafana-plugin-sdk-go/backend/httpclient"
-	"github.com/grafana/grafana-plugin-sdk-go/backend/instancemgmt"
 	"github.com/grafana/grafana-cloud-monitoring-datasource/pkg/cloud-monitoring/kinds/dataquery"
+	"github.com/grafana/grafana-plugin-sdk-go/backend"
+	"github.com/grafana/grafana-plugin-sdk-go/backend/httpclient"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func TestNewInstanceSettings(t *testing.T) {
+func TestNewDatasourceInfo(t *testing.T) {
 	t.Run("should create a new instance with empty settings", func(t *testing.T) {
 		cli := httpclient.NewProvider()
-		f := newInstanceSettings(*cli)
-		dsInfo, err := f(context.Background(), backend.DataSourceInstanceSettings{
+		dsInfo, err := newDatasourceInfo(*cli, context.Background(), backend.DataSourceInstanceSettings{
 			JSONData: json.RawMessage(`{}`),
 		})
 		require.NoError(t, err)
 		assert.NotNil(t, dsInfo)
-		assert.Equal(t, jwtAuthentication, dsInfo.(*datasourceInfo).authenticationType)
+		assert.Equal(t, jwtAuthentication, dsInfo.authenticationType)
 	})
 
 	t.Run("should create a new instance parsing settings", func(t *testing.T) {
 		cli := httpclient.NewProvider()
-		f := newInstanceSettings(*cli)
-		dsInfo, err := f(context.Background(), backend.DataSourceInstanceSettings{
+		dsInfo, err := newDatasourceInfo(*cli, context.Background(), backend.DataSourceInstanceSettings{
 			JSONData: json.RawMessage(`{"authenticationType": "test", "defaultProject": "test", "clientEmail": "test", "tokenUri": "test"}`),
 		})
 		require.NoError(t, err)
 		assert.NotNil(t, dsInfo)
-		dsInfoCasted := dsInfo.(*datasourceInfo)
-		assert.Equal(t, "test", dsInfoCasted.authenticationType)
-		assert.Equal(t, "test", dsInfoCasted.defaultProject)
-		assert.Equal(t, "test", dsInfoCasted.clientEmail)
-		assert.Equal(t, "test", dsInfoCasted.tokenUri)
+		assert.Equal(t, "test", dsInfo.authenticationType)
+		assert.Equal(t, "test", dsInfo.defaultProject)
+		assert.Equal(t, "test", dsInfo.clientEmail)
+		assert.Equal(t, "test", dsInfo.tokenUri)
 	})
 }
 
 func TestCloudMonitoring(t *testing.T) {
-	service := &Service{}
+	ds := &DataSource{}
 
 	t.Run("parses a time series list query", func(t *testing.T) {
 		req := baseTimeSeriesList()
-		qes, err := service.buildQueryExecutors(service.logger, req)
+		qes, err := ds.buildQueryExecutors(ds.logger, req)
 		require.NoError(t, err)
 		queries := getCloudMonitoringListFromInterface(t, qes)
 
@@ -71,7 +66,7 @@ func TestCloudMonitoring(t *testing.T) {
 
 	t.Run("parses a time series query", func(t *testing.T) {
 		req := baseTimeSeriesQuery()
-		qes, err := service.buildQueryExecutors(service.logger, req)
+		qes, err := ds.buildQueryExecutors(ds.logger, req)
 		require.NoError(t, err)
 		queries := getCloudMonitoringQueryFromInterface(t, qes)
 
@@ -95,7 +90,7 @@ func TestCloudMonitoring(t *testing.T) {
 			"aliasBy":    "testalias"
 		}`)
 
-		qes, err := service.buildQueryExecutors(service.logger, req)
+		qes, err := ds.buildQueryExecutors(ds.logger, req)
 		require.NoError(t, err)
 		queries := getCloudMonitoringListFromInterface(t, qes)
 
@@ -114,7 +109,7 @@ func TestCloudMonitoring(t *testing.T) {
 			req := deprecatedReq()
 			err := migrateRequest(req)
 			require.NoError(t, err)
-			qes, err := service.buildQueryExecutors(service.logger, req)
+			qes, err := ds.buildQueryExecutors(ds.logger, req)
 			require.NoError(t, err)
 			queries := getCloudMonitoringListFromInterface(t, qes)
 
@@ -157,7 +152,7 @@ func TestCloudMonitoring(t *testing.T) {
 			err := migrateRequest(query)
 			require.NoError(t, err)
 
-			qes, err := service.buildQueryExecutors(service.logger, query)
+			qes, err := ds.buildQueryExecutors(ds.logger, query)
 			require.NoError(t, err)
 			queries := getCloudMonitoringListFromInterface(t, qes)
 			assert.Equal(t, 1, len(queries))
@@ -191,7 +186,7 @@ func TestCloudMonitoring(t *testing.T) {
 				err := migrateRequest(req)
 				require.NoError(t, err)
 
-				qes, err := service.buildQueryExecutors(service.logger, req)
+				qes, err := ds.buildQueryExecutors(ds.logger, req)
 				require.NoError(t, err)
 				queries := getCloudMonitoringListFromInterface(t, qes)
 				assert.Equal(t, `+1000s`, queries[0].params["aggregation.alignmentPeriod"][0])
@@ -221,7 +216,7 @@ func TestCloudMonitoring(t *testing.T) {
 				err := migrateRequest(req)
 				require.NoError(t, err)
 
-				qes, err := service.buildQueryExecutors(service.logger, req)
+				qes, err := ds.buildQueryExecutors(ds.logger, req)
 				require.NoError(t, err)
 				queries := getCloudMonitoringListFromInterface(t, qes)
 				assert.Equal(t, `+60s`, queries[0].params["aggregation.alignmentPeriod"][0])
@@ -257,7 +252,7 @@ func TestCloudMonitoring(t *testing.T) {
 				err := migrateRequest(req)
 				require.NoError(t, err)
 
-				qes, err := service.buildQueryExecutors(service.logger, req)
+				qes, err := ds.buildQueryExecutors(ds.logger, req)
 				require.NoError(t, err)
 				queries := getCloudMonitoringListFromInterface(t, qes)
 				assert.Equal(t, `+60s`, queries[0].params["aggregation.alignmentPeriod"][0])
@@ -274,7 +269,7 @@ func TestCloudMonitoring(t *testing.T) {
 				err := migrateRequest(req)
 				require.NoError(t, err)
 
-				qes, err := service.buildQueryExecutors(service.logger, req)
+				qes, err := ds.buildQueryExecutors(ds.logger, req)
 				require.NoError(t, err)
 				queries := getCloudMonitoringListFromInterface(t, qes)
 				assert.Equal(t, `+60s`, queries[0].params["aggregation.alignmentPeriod"][0])
@@ -291,7 +286,7 @@ func TestCloudMonitoring(t *testing.T) {
 				err := migrateRequest(req)
 				require.NoError(t, err)
 
-				qes, err := service.buildQueryExecutors(service.logger, req)
+				qes, err := ds.buildQueryExecutors(ds.logger, req)
 				require.NoError(t, err)
 				queries := getCloudMonitoringListFromInterface(t, qes)
 				assert.Equal(t, `+300s`, queries[0].params["aggregation.alignmentPeriod"][0])
@@ -308,7 +303,7 @@ func TestCloudMonitoring(t *testing.T) {
 				err := migrateRequest(req)
 				require.NoError(t, err)
 
-				qes, err := service.buildQueryExecutors(service.logger, req)
+				qes, err := ds.buildQueryExecutors(ds.logger, req)
 				require.NoError(t, err)
 				queries := getCloudMonitoringListFromInterface(t, qes)
 				assert.Equal(t, `+3600s`, queries[0].params["aggregation.alignmentPeriod"][0])
@@ -329,7 +324,7 @@ func TestCloudMonitoring(t *testing.T) {
 				err := migrateRequest(req)
 				require.NoError(t, err)
 
-				qes, err := service.buildQueryExecutors(service.logger, req)
+				qes, err := ds.buildQueryExecutors(ds.logger, req)
 				require.NoError(t, err)
 				queries := getCloudMonitoringListFromInterface(t, qes)
 				assert.Equal(t, `+60s`, queries[0].params["aggregation.alignmentPeriod"][0])
@@ -361,7 +356,7 @@ func TestCloudMonitoring(t *testing.T) {
 				err := migrateRequest(req)
 				require.NoError(t, err)
 
-				qes, err := service.buildQueryExecutors(service.logger, req)
+				qes, err := ds.buildQueryExecutors(ds.logger, req)
 				require.NoError(t, err)
 				queries := getCloudMonitoringListFromInterface(t, qes)
 				assert.Equal(t, `+60s`, queries[0].params["aggregation.alignmentPeriod"][0])
@@ -393,7 +388,7 @@ func TestCloudMonitoring(t *testing.T) {
 				err := migrateRequest(req)
 				require.NoError(t, err)
 
-				qes, err := service.buildQueryExecutors(service.logger, req)
+				qes, err := ds.buildQueryExecutors(ds.logger, req)
 				require.NoError(t, err)
 				queries := getCloudMonitoringListFromInterface(t, qes)
 				assert.Equal(t, `+300s`, queries[0].params["aggregation.alignmentPeriod"][0])
@@ -425,7 +420,7 @@ func TestCloudMonitoring(t *testing.T) {
 				err := migrateRequest(req)
 				require.NoError(t, err)
 
-				qes, err := service.buildQueryExecutors(service.logger, req)
+				qes, err := ds.buildQueryExecutors(ds.logger, req)
 				require.NoError(t, err)
 				queries := getCloudMonitoringListFromInterface(t, qes)
 				assert.Equal(t, `+3600s`, queries[0].params["aggregation.alignmentPeriod"][0])
@@ -457,7 +452,7 @@ func TestCloudMonitoring(t *testing.T) {
 				err := migrateRequest(req)
 				require.NoError(t, err)
 
-				qes, err := service.buildQueryExecutors(service.logger, req)
+				qes, err := ds.buildQueryExecutors(ds.logger, req)
 				require.NoError(t, err)
 				queries := getCloudMonitoringListFromInterface(t, qes)
 				assert.Equal(t, `+600s`, queries[0].params["aggregation.alignmentPeriod"][0])
@@ -489,7 +484,7 @@ func TestCloudMonitoring(t *testing.T) {
 			err := migrateRequest(req)
 			require.NoError(t, err)
 
-			qes, err := service.buildQueryExecutors(service.logger, req)
+			qes, err := ds.buildQueryExecutors(ds.logger, req)
 			require.NoError(t, err)
 			queries := getCloudMonitoringListFromInterface(t, qes)
 
@@ -535,7 +530,7 @@ func TestCloudMonitoring(t *testing.T) {
 			err := migrateRequest(req)
 			require.NoError(t, err)
 
-			qes, err := service.buildQueryExecutors(service.logger, req)
+			qes, err := ds.buildQueryExecutors(ds.logger, req)
 			require.NoError(t, err)
 			queries := getCloudMonitoringListFromInterface(t, qes)
 
@@ -598,7 +593,7 @@ func TestCloudMonitoring(t *testing.T) {
 		require.NoError(t, err)
 
 		t.Run("and query type is metrics", func(t *testing.T) {
-			qes, err := service.buildQueryExecutors(service.logger, req)
+			qes, err := ds.buildQueryExecutors(ds.logger, req)
 			require.NoError(t, err)
 			queries := getCloudMonitoringListFromInterface(t, qes)
 
@@ -647,7 +642,7 @@ func TestCloudMonitoring(t *testing.T) {
 			err = migrateRequest(req)
 			require.NoError(t, err)
 
-			qes, err = service.buildQueryExecutors(service.logger, req)
+			qes, err = ds.buildQueryExecutors(ds.logger, req)
 			require.NoError(t, err)
 
 			tqueries := getCloudMonitoringQueryFromInterface(t, qes)
@@ -675,7 +670,7 @@ func TestCloudMonitoring(t *testing.T) {
 			err := migrateRequest(req)
 			require.NoError(t, err)
 
-			qes, err := service.buildQueryExecutors(service.logger, req)
+			qes, err := ds.buildQueryExecutors(ds.logger, req)
 			require.NoError(t, err)
 			queries := getCloudMonitoringSLOFromInterface(t, qes)
 
@@ -705,7 +700,7 @@ func TestCloudMonitoring(t *testing.T) {
 			err = migrateRequest(req)
 			require.NoError(t, err)
 
-			qes, err = service.buildQueryExecutors(service.logger, req)
+			qes, err = ds.buildQueryExecutors(ds.logger, req)
 			require.NoError(t, err)
 			qqueries := getCloudMonitoringSLOFromInterface(t, qes)
 			assert.Equal(t, "ALIGN_NEXT_OLDER", qqueries[0].params["aggregation.perSeriesAligner"][0])
@@ -730,7 +725,7 @@ func TestCloudMonitoring(t *testing.T) {
 			err = migrateRequest(req)
 			require.NoError(t, err)
 
-			qes, err = service.buildQueryExecutors(service.logger, req)
+			qes, err = ds.buildQueryExecutors(ds.logger, req)
 			require.NoError(t, err)
 			qqqueries := getCloudMonitoringSLOFromInterface(t, qes)
 			assert.Equal(t, `aggregation.alignmentPeriod=%2B60s&aggregation.perSeriesAligner=ALIGN_NEXT_OLDER&filter=select_slo_burn_rate%28%22projects%2Ftest-proj%2Fservices%2Ftest-service%2FserviceLevelObjectives%2Ftest-slo%22%2C+%221h%22%29&interval.endTime=2018-03-15T13%3A34%3A00Z&interval.startTime=2018-03-15T13%3A00%3A00Z`, qqqueries[0].params.Encode())
@@ -812,7 +807,7 @@ func TestCloudMonitoring(t *testing.T) {
 		err := migrateRequest(req)
 		require.NoError(t, err)
 
-		qes, err := service.buildQueryExecutors(service.logger, req)
+		qes, err := ds.buildQueryExecutors(ds.logger, req)
 		require.NoError(t, err)
 		queries := getCloudMonitoringListFromInterface(t, qes)
 
@@ -842,7 +837,7 @@ func TestCloudMonitoring(t *testing.T) {
 		err := migrateRequest(req)
 		require.NoError(t, err)
 
-		qes, err := service.buildQueryExecutors(service.logger, req)
+		qes, err := ds.buildQueryExecutors(ds.logger, req)
 		require.NoError(t, err)
 		queries := getCloudMonitoringListFromInterface(t, qes)
 
@@ -872,7 +867,7 @@ func TestCloudMonitoring(t *testing.T) {
 		err := migrateRequest(req)
 		require.NoError(t, err)
 
-		qes, err := service.buildQueryExecutors(service.logger, req)
+		qes, err := ds.buildQueryExecutors(ds.logger, req)
 		require.NoError(t, err)
 		queries := getCloudMonitoringListFromInterface(t, qes)
 
@@ -900,7 +895,7 @@ func TestCloudMonitoring(t *testing.T) {
 		err := migrateRequest(req)
 		require.NoError(t, err)
 
-		qes, err := service.buildQueryExecutors(service.logger, req)
+		qes, err := ds.buildQueryExecutors(ds.logger, req)
 		require.NoError(t, err)
 		queries := getCloudMonitoringListFromInterface(t, qes)
 
@@ -930,7 +925,7 @@ func TestCloudMonitoring(t *testing.T) {
 		err := migrateRequest(req)
 		require.NoError(t, err)
 
-		qes, err := service.buildQueryExecutors(service.logger, req)
+		qes, err := ds.buildQueryExecutors(ds.logger, req)
 		require.NoError(t, err)
 		queries := getCloudMonitoringListFromInterface(t, qes)
 
@@ -958,7 +953,7 @@ func TestCloudMonitoring(t *testing.T) {
 		err := migrateRequest(req)
 		require.NoError(t, err)
 
-		qes, err := service.buildQueryExecutors(service.logger, req)
+		qes, err := ds.buildQueryExecutors(ds.logger, req)
 		require.NoError(t, err)
 		queries := getCloudMonitoringListFromInterface(t, qes)
 
@@ -1144,18 +1139,15 @@ func baseTimeSeriesQuery() *backend.QueryDataRequest {
 
 func TestCheckHealth(t *testing.T) {
 	t.Run("and using GCE authentation should return proper error", func(t *testing.T) {
-		im := datasource.NewInstanceManager(func(_ context.Context, s backend.DataSourceInstanceSettings) (instancemgmt.Instance, error) {
-			return &datasourceInfo{
+		ds := &DataSource{
+			info: &datasourceInfo{
 				authenticationType: gceAuthentication,
-			}, nil
-		})
-		service := &Service{
-			im: im,
+			},
 			gceDefaultProjectGetter: func(ctx context.Context, scope string) (string, error) {
 				return "", fmt.Errorf("not found!")
 			},
 		}
-		res, err := service.CheckHealth(context.Background(), &backend.CheckHealthRequest{
+		res, err := ds.CheckHealth(context.Background(), &backend.CheckHealthRequest{
 			PluginContext: backend.PluginContext{
 				DataSourceInstanceSettings: &backend.DataSourceInstanceSettings{},
 			},

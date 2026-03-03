@@ -137,9 +137,9 @@ func traceReq(ctx context.Context, req *backend.QueryDataRequest, dsInfo datasou
 }
 
 func runTimeSeriesRequest(ctx context.Context, req *backend.QueryDataRequest,
-	s *Service, dsInfo datasourceInfo, projectName string, params url.Values, body map[string]any, logger log.Logger, timeRange backend.TimeRange) (*backend.DataResponse, cloudMonitoringResponse, string, error) {
+	ds *DataSource, dsInfo datasourceInfo, projectName string, params url.Values, body map[string]any, logger log.Logger, timeRange backend.TimeRange) (*backend.DataResponse, cloudMonitoringResponse, string, error) {
 	dr := &backend.DataResponse{}
-	projectName, err := s.ensureProject(ctx, dsInfo, projectName)
+	projectName, err := ds.ensureProject(ctx, dsInfo, projectName)
 	if err != nil {
 		dr.Error = err
 		return dr, cloudMonitoringResponse{}, "", nil

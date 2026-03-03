@@ -9,8 +9,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/grafana/grafana-plugin-sdk-go/backend"
-	"github.com/grafana/grafana-plugin-sdk-go/backend/instancemgmt"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -92,23 +90,9 @@ func Test_doRequest(t *testing.T) {
 	}
 }
 
-type fakeInstance struct {
-	services map[string]datasourceService
-}
-
-func (f *fakeInstance) Get(_ context.Context, _ backend.PluginContext) (instancemgmt.Instance, error) {
-	return &datasourceInfo{
-		services: f.services,
-	}, nil
-}
-
-func (f *fakeInstance) Do(_ context.Context, _ backend.PluginContext, _ instancemgmt.InstanceCallbackFunc) error {
-	return nil
-}
-
 func Test_setRequestVariables(t *testing.T) {
-	s := Service{
-		im: &fakeInstance{
+	ds := DataSource{
+		info: &datasourceInfo{
 			services: map[string]datasourceService{
 				cloudMonitor: {
 					url:    buildURL(cloudMonitor, "googleapis.com"),
@@ -122,7 +106,7 @@ func Test_setRequestVariables(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Unexpected error %v", err)
 	}
-	_, _, err = s.setRequestVariables(req, cloudMonitor)
+	_, _, err = ds.setRequestVariables(req, cloudMonitor)
 	if err != nil {
 		t.Fatalf("Unexpected error %v", err)
 	}
@@ -293,8 +277,8 @@ func Test_processData_functions(t *testing.T) {
 
 func Test_getGCEDefaultProject(t *testing.T) {
 	project := "test-project"
-	s := Service{
-		im: &fakeInstance{
+	ds := DataSource{
+		info: &datasourceInfo{
 			services: map[string]datasourceService{
 				cloudMonitor: {
 					url:    routes[cloudMonitor].url,
@@ -307,6 +291,6 @@ func Test_getGCEDefaultProject(t *testing.T) {
 		},
 	}
 
-	assert.HTTPSuccess(t, s.getGCEDefaultProject, "GET", "/gceDefaultProject", nil)
-	assert.HTTPBodyContains(t, s.getGCEDefaultProject, "GET", "/gceDefaultProject", nil, fmt.Sprintf("\"%v\"", project))
+	assert.HTTPSuccess(t, ds.getGCEDefaultProject, "GET", "/gceDefaultProject", nil)
+	assert.HTTPBodyContains(t, ds.getGCEDefaultProject, "GET", "/gceDefaultProject", nil, fmt.Sprintf("\"%v\"", project))
 }

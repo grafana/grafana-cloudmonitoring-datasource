@@ -16,8 +16,8 @@ import (
 )
 
 func (timeSeriesFilter *cloudMonitoringTimeSeriesList) run(ctx context.Context, req *backend.QueryDataRequest,
-	s *Service, dsInfo datasourceInfo, logger log.Logger) (*backend.DataResponse, any, string, error) {
-	return runTimeSeriesRequest(ctx, req, s, dsInfo, timeSeriesFilter.parameters.ProjectName, timeSeriesFilter.params, nil, logger, timeSeriesFilter.timeRange)
+	ds *DataSource, dsInfo datasourceInfo, logger log.Logger) (*backend.DataResponse, any, string, error) {
+	return runTimeSeriesRequest(ctx, req, ds, dsInfo, timeSeriesFilter.parameters.ProjectName, timeSeriesFilter.params, nil, logger, timeSeriesFilter.timeRange)
 }
 
 func parseTimeSeriesResponse(queryRes *backend.DataResponse,
