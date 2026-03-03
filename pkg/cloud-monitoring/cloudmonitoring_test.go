@@ -14,7 +14,7 @@ import (
 	"github.com/grafana/grafana-plugin-sdk-go/backend/datasource"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/httpclient"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/instancemgmt"
-	"github.com/grafana/grafana/pkg/tsdb/cloud-monitoring/kinds/dataquery"
+	"github.com/grafana/grafana-cloud-monitoring-datasource/pkg/cloud-monitoring/kinds/dataquery"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

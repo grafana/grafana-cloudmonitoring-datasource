@@ -6,7 +6,7 @@ import (
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/httpclient"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/instancemgmt"
-	cloudmonitoring "github.com/grafana/grafana/pkg/tsdb/cloud-monitoring"
+	cloudmonitoring "github.com/grafana/grafana-cloud-monitoring-datasource/pkg/cloud-monitoring"
 )
 
 var (

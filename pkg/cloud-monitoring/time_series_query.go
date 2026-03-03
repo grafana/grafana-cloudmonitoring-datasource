@@ -9,7 +9,7 @@ import (
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
 	"github.com/grafana/grafana-plugin-sdk-go/data"
-	gcmTime "github.com/grafana/grafana/pkg/tsdb/cloud-monitoring/time"
+	gcmTime "github.com/grafana/grafana-cloud-monitoring-datasource/pkg/cloud-monitoring/time"
 )
 
 func (timeSeriesQuery *cloudMonitoringTimeSeriesQuery) appendGraphPeriod(req *backend.QueryDataRequest) string {

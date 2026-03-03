@@ -13,7 +13,7 @@ import (
 	"github.com/grafana/grafana-plugin-sdk-go/data"
 	"github.com/huandu/xstrings"
 
-	"github.com/grafana/grafana/pkg/tsdb/cloud-monitoring/kinds/dataquery"
+	"github.com/grafana/grafana-cloud-monitoring-datasource/pkg/cloud-monitoring/kinds/dataquery"
 )
 
 type (

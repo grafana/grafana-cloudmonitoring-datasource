@@ -13,7 +13,7 @@ import (
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
 	"github.com/grafana/grafana-plugin-sdk-go/data"
-	"github.com/grafana/grafana/pkg/tsdb/cloud-monitoring/converter"
+	"github.com/grafana/grafana-cloud-monitoring-datasource/pkg/cloud-monitoring/converter"
 	jsoniter "github.com/json-iterator/go"
 )
 
