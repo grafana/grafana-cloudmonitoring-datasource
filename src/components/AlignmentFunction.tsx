@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { SelectableValue } from '@grafana/data';
 import { Select } from '@grafana/ui';
 
-import { PreprocessorType, SLOQuery, TimeSeriesList } from '../dataquery.gen';
+import { PreprocessorType, SLOQuery, TimeSeriesList } from '../dataquery';
 import { getAlignmentPickerData } from '../functions';
 import { MetricDescriptor } from '../types/types';
 

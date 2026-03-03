@@ -4,7 +4,7 @@ import { SelectableValue } from '@grafana/data';
 import { EditorField, EditorRow } from '@grafana/plugin-ui';
 import { TextArea, Input } from '@grafana/ui';
 
-import { PromQLQuery } from '../dataquery.gen';
+import { PromQLQuery } from '../dataquery';
 import CloudMonitoringDatasource from '../datasource';
 import { selectors } from '../e2e/selectors';
 

@@ -5,7 +5,7 @@ import { EditorField, EditorFieldGroup } from '@grafana/plugin-ui';
 import { MultiSelect } from '@grafana/ui';
 
 import { SYSTEM_LABELS } from '../constants';
-import { TimeSeriesList } from '../dataquery.gen';
+import { TimeSeriesList } from '../dataquery';
 import { labelsToGroupedOptions } from '../functions';
 import { MetricDescriptor } from '../types/types';
 

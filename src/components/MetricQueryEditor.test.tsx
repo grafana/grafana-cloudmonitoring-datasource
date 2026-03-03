@@ -4,7 +4,7 @@ import { openMenu } from 'react-select-event';
 
 import { getDefaultTimeRange } from '@grafana/data';
 
-import { QueryType } from '../dataquery.gen';
+import { QueryType } from '../dataquery';
 import { createMockDatasource } from '../mocks/cloudMonitoringDatasource';
 import { createMockQuery } from '../mocks/cloudMonitoringQuery';
 

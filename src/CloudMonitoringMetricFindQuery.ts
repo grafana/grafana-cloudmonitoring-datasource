@@ -1,7 +1,7 @@
 import { isString } from 'lodash';
 
 import { ALIGNMENT_PERIODS, SELECTORS } from './constants';
-import { MetricFindQueryTypes, ValueTypes } from './dataquery.gen';
+import { MetricFindQueryTypes, ValueTypes } from './dataquery';
 import CloudMonitoringDatasource from './datasource';
 import {
   extractServicesFromMetricDescriptors,

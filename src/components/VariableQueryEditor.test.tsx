@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 
 import { VariableModel } from '@grafana/data';
 
-import { MetricFindQueryTypes } from '../dataquery.gen';
+import { MetricFindQueryTypes } from '../dataquery';
 import CloudMonitoringDatasource from '../datasource';
 import { CloudMonitoringVariableQuery } from '../types/types';
 

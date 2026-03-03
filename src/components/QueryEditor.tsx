@@ -6,7 +6,7 @@ import { QueryEditorProps, getDefaultTimeRange, toOption } from '@grafana/data';
 import { EditorRows } from '@grafana/plugin-ui';
 import { ConfirmModal } from '@grafana/ui';
 
-import { PromQLQuery, QueryType, SLOQuery } from '../dataquery.gen';
+import { PromQLQuery, QueryType, SLOQuery } from '../dataquery';
 import CloudMonitoringDatasource from '../datasource';
 import { selectors } from '../e2e/selectors';
 import { CloudMonitoringQuery } from '../types/query';

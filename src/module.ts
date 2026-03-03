@@ -7,7 +7,7 @@ import CloudMonitoringCheatSheet from './components/CloudMonitoringCheatSheet';
 import { ConfigEditor } from './components/ConfigEditor/ConfigEditor';
 import { QueryEditor } from './components/QueryEditor';
 import { CloudMonitoringVariableQueryEditor } from './components/VariableQueryEditor';
-import { QueryType } from './dataquery.gen';
+import { QueryType } from './dataquery';
 import CloudMonitoringDatasource from './datasource';
 import pluginJson from './plugin.json';
 import { trackCloudMonitoringDashboardLoaded } from './tracking';

@@ -9,7 +9,7 @@ import { EditorField, EditorFieldGroup, EditorRow } from '@grafana/plugin-ui';
 import { reportInteraction } from '@grafana/runtime';
 import { getSelectStyles, Select, AsyncSelect, useStyles2, useTheme2 } from '@grafana/ui';
 
-import { PreprocessorType, TimeSeriesList, MetricKind, ValueTypes } from '../dataquery.gen';
+import { PreprocessorType, TimeSeriesList, MetricKind, ValueTypes } from '../dataquery';
 import CloudMonitoringDatasource from '../datasource';
 import { selectors } from '../e2e/selectors';
 import { getAlignmentPickerData, getMetricType, setMetricType } from '../functions';

@@ -4,7 +4,7 @@ import { SelectableValue } from '@grafana/data';
 import { EditorField } from '@grafana/plugin-ui';
 import { Select } from '@grafana/ui';
 
-import { ValueTypes } from '../dataquery.gen';
+import { ValueTypes } from '../dataquery';
 import { getAggregationOptionsByMetric } from '../functions';
 import { MetricDescriptor } from '../types/types';
 

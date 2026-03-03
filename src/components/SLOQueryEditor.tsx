@@ -5,7 +5,7 @@ import { SelectableValue } from '@grafana/data';
 import { EditorField, EditorFieldGroup, EditorRow } from '@grafana/plugin-ui';
 
 import { ALIGNMENT_PERIODS, SLO_BURN_RATE_SELECTOR_NAME } from '../constants';
-import { AlignmentTypes, SLOQuery } from '../dataquery.gen';
+import { AlignmentTypes, SLOQuery } from '../dataquery';
 import CloudMonitoringDatasource from '../datasource';
 import { selectors } from '../e2e/selectors';
 import { alignmentPeriodLabel } from '../functions';

@@ -1,7 +1,7 @@
 import { render, waitFor, screen } from '@testing-library/react';
 import { select } from 'react-select-event';
 
-import { QueryType } from '../dataquery.gen';
+import { QueryType } from '../dataquery';
 import { selectors } from '../e2e/selectors';
 import { createMockDatasource } from '../mocks/cloudMonitoringDatasource';
 import { createMockQuery } from '../mocks/cloudMonitoringQuery';

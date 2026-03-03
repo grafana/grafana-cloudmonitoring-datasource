@@ -4,7 +4,7 @@ import { openMenu } from 'react-select-event';
 
 import { CustomVariableModel } from '@grafana/data';
 
-import { MetricKind, ValueTypes } from '../dataquery.gen';
+import { MetricKind, ValueTypes } from '../dataquery';
 import { createMockDatasource } from '../mocks/cloudMonitoringDatasource';
 import { createMockMetricDescriptor } from '../mocks/cloudMonitoringMetricDescriptor';
 import { createMockTimeSeriesList } from '../mocks/cloudMonitoringQuery';

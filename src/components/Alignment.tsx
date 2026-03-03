@@ -4,7 +4,7 @@ import { SelectableValue } from '@grafana/data';
 import { EditorField, EditorFieldGroup } from '@grafana/plugin-ui';
 
 import { ALIGNMENT_PERIODS } from '../constants';
-import { PreprocessorType, TimeSeriesList } from '../dataquery.gen';
+import { PreprocessorType, TimeSeriesList } from '../dataquery';
 import CloudMonitoringDatasource from '../datasource';
 import { alignmentPeriodLabel } from '../functions';
 import { CustomMetaData, MetricDescriptor } from '../types/types';
