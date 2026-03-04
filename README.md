@@ -1,6 +1,10 @@
-# Grafana data source plugin template
+# Google Cloud Monitoring data source plugin (formerly named Stackdriver)
 
-This template is a starting point for building a Data Source Plugin for Grafana.
+Grafana ships with the Cloud Monitoring plugin preinstalled. Simply add it as a data source and you are ready to build dashboards for your Cloud Monitoring metrics.
+
+Read more about it here:
+
+[https://grafana.com/docs/grafana/latest/datasources/google-cloud-monitoring/](https://grafana.com/docs/grafana/latest/datasources/google-cloud-monitoring/)
 
 ## What are Grafana data source plugins?
 
