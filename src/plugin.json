@@ -3,7 +3,6 @@
   "name": "Google Cloud Monitoring",
   "id": "stackdriver",
   "category": "cloud",
-
   "metrics": true,
   "alerting": true,
   "annotations": true,
@@ -80,8 +79,9 @@
     "maxDataPoints": true,
     "cacheTimeout": true
   },
-  "executable": "gpx_cloudmonitoring",
+  "executable": "gpx_grafana-cloud-monitoring-datasource",
   "info": {
+    "updated": "%TODAY%",
     "description": "Data source for Google's monitoring service (formerly named Stackdriver)",
     "version": "%VERSION%",
     "logos": {
@@ -93,7 +93,7 @@
       "url": "https://grafana.com"
     },
     "links": [
-      { "name": "Raise issue", "url": "https://github.com/grafana/grafana/issues/new" },
+      { "name": "Raise issue", "url": "https://github.com/grafana/grafana-cloud-monitoring-datasource/issues/new" },
       { "name": "Documentation", "url": "https://grafana.com/docs/grafana/latest/datasources/google-cloud-monitoring/" }
     ]
   },
