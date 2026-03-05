@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import * as React from 'react';
 
 import { DataSourcePluginOptionsEditorProps, updateDatasourcePluginJsonDataOption } from '@grafana/data';
 import { ConnectionConfig } from '@grafana/google-sdk';
