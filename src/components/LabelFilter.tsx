@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import * as React from 'react';
 
 import { SelectableValue, toOption } from '@grafana/data';
 import { AccessoryButton, EditorField, EditorList, EditorRow } from '@grafana/plugin-ui';
