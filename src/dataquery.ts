@@ -66,11 +66,11 @@ export interface TimeSeriesList {
   /**
    * Array of filters to query data by. Labels that can be filtered on are defined by the metric.
    */
-  filters?: Array<string>;
+  filters?: string[];
   /**
    * Array of labels to group data by.
    */
-  groupBys?: Array<string>;
+  groupBys?: string[];
   /**
    * Alignment function to be used. Defaults to ALIGN_MEAN.
    */
@@ -94,7 +94,7 @@ export interface TimeSeriesList {
   /**
    * Only present if a preprocessor is selected. Array of labels to group data by.
    */
-  secondaryGroupBys?: Array<string>;
+  secondaryGroupBys?: string[];
   /**
    * Only present if a preprocessor is selected. Alignment function to be used. Defaults to ALIGN_MEAN.
    */
@@ -230,7 +230,7 @@ export interface MetricQuery {
   /**
    * Array of filters to query data by. Labels that can be filtered on are defined by the metric.
    */
-  filters?: Array<string>;
+  filters?: string[];
   /**
    * To disable the graphPeriod, it should explictly be set to 'disabled'.
    */
@@ -238,7 +238,7 @@ export interface MetricQuery {
   /**
    * Array of labels to group data by.
    */
-  groupBys?: Array<string>;
+  groupBys?: string[];
   metricKind?: MetricKind;
   metricType: string;
   /**
@@ -312,7 +312,7 @@ export interface LegacyCloudMonitoringAnnotationQuery {
   /**
    * Array of filters to query data by. Labels that can be filtered on are defined by the metric.
    */
-  filters: Array<string>;
+  filters: string[];
   metricKind: MetricKind;
   metricType: string;
   /**
