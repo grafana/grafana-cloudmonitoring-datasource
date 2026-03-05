@@ -1,6 +1,6 @@
-# Google Cloud Monitoring data source plugin (formerly named Stackdriver)
+# Google Cloud Monitoring data source - native plugin (formerly named Stackdriver)
 
-Grafana ships with the Cloud Monitoring plugin preinstalled. Simply add it as a data source and you are ready to build dashboards for your Cloud Monitoring metrics.
+Grafana ships with **built in** support for Google Cloud Monitoring. Simply add it as a data source and you are ready to build dashboards for your Cloud Monitoring metrics.
 
 Read more about it here:
 
