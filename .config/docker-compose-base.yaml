@@ -1,7 +1,7 @@
 services:
   grafana:
     user: root
-    container_name: 'grafana-cloudmonitoring-datasource'
+    container_name: 'grafana-cloud-monitoring-datasource'
 
     build:
       context: .
@@ -19,13 +19,13 @@ services:
     cap_add:
       - SYS_PTRACE
     volumes:
-      - ../dist:/var/lib/grafana/plugins/grafana-cloudmonitoring-datasource
+      - ../dist:/var/lib/grafana/plugins/stackdriver
       - ../provisioning:/etc/grafana/provisioning
-      - ..:/root/grafana-cloudmonitoring-datasource
+      - ..:/root/stackdriver
 
     environment:
       NODE_ENV: development
-      GF_LOG_FILTERS: plugin.grafana-cloudmonitoring-datasource:debug
+      GF_LOG_FILTERS: plugin.stackdriver:debug
       GF_LOG_LEVEL: debug
       GF_DATAPROXY_LOGGING: 1
-      GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: grafana-cloudmonitoring-datasource
+      GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: stackdriver
