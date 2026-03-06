@@ -19,9 +19,9 @@ services:
     cap_add:
       - SYS_PTRACE
     volumes:
-      - ../dist:/var/lib/grafana/plugins/stackdriver
+      - ../dist:/var/lib/grafana/plugins/grafana-cloud-monitoring-datasource
       - ../provisioning:/etc/grafana/provisioning
-      - ..:/root/stackdriver
+      - ..:/root/grafana-cloud-monitoring-datasource
 
     environment:
       NODE_ENV: development
