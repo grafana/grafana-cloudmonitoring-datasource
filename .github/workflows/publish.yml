@@ -9,7 +9,7 @@ on:
         default: main
       environment:
         # description: Environment will always publish to all waves (dev + ops + prod). Cloud will publish scoped only to Grafana Cloud, On Prem will publish with Universal scope. Please use Cloud unless emergency fix needed for On Prem customer.
-        description:Environment will publish to dev only while externalization is in progress
+        description: Environment will publish to dev only while externalization is in progress
         required: true
         type: choice
         default: "cloud (recommended)"
