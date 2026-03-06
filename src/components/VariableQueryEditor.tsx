@@ -1,9 +1,10 @@
 import { PureComponent } from 'react';
+import * as React from 'react';
 
 import { QueryEditorProps } from '@grafana/data';
 import { getTemplateSrv } from '@grafana/runtime';
 
-import { MetricFindQueryTypes } from '../dataquery.gen';
+import { MetricFindQueryTypes } from '../dataquery';
 import CloudMonitoringDatasource from '../datasource';
 import { extractServicesFromMetricDescriptors, getLabelKeys, getMetricTypes } from '../functions';
 import { CloudMonitoringQuery } from '../types/query';

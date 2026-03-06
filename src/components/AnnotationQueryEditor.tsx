@@ -6,7 +6,7 @@ import { QueryEditorProps, getDefaultTimeRange, toOption } from '@grafana/data';
 import { EditorField, EditorRows } from '@grafana/plugin-ui';
 import { Input } from '@grafana/ui';
 
-import { TimeSeriesList, QueryType } from '../dataquery.gen';
+import { TimeSeriesList, QueryType } from '../dataquery';
 import CloudMonitoringDatasource from '../datasource';
 import { CloudMonitoringQuery } from '../types/query';
 import { CloudMonitoringOptions } from '../types/types';

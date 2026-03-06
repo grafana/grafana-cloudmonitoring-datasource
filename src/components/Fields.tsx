@@ -1,3 +1,5 @@
+import * as React from 'react';
+
 import { SelectableValue } from '@grafana/data';
 import { Field, Select } from '@grafana/ui';
 

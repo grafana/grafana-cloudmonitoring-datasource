@@ -1,4 +1,4 @@
-import { AlignmentTypes, QueryType, SLOQuery, TimeSeriesList, TimeSeriesQuery } from '../dataquery.gen';
+import { AlignmentTypes, QueryType, SLOQuery, TimeSeriesList, TimeSeriesQuery } from '../dataquery';
 import { CloudMonitoringQuery } from '../types/query';
 
 type Subset<K> = {

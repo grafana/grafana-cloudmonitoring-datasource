@@ -1,7 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import { openMenu } from 'react-select-event';
+import * as React from 'react';
 
-import { MetricKind, ValueTypes } from '../dataquery.gen';
+import { MetricKind, ValueTypes } from '../dataquery';
 import { MetricDescriptor } from '../types/types';
 
 import { Aggregation, Props } from './Aggregation';

@@ -1,5 +1,5 @@
 import { AGGREGATIONS, SYSTEM_LABELS } from './constants';
-import { AlignmentTypes, TimeSeriesList, MetricKind, ValueTypes } from './dataquery.gen';
+import { AlignmentTypes, TimeSeriesList, MetricKind, ValueTypes } from './dataquery';
 import {
   extractServicesFromMetricDescriptors,
   getAggregationOptionsByMetric,

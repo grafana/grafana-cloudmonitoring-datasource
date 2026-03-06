@@ -1,10 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { openMenu } from 'react-select-event';
+import * as React from 'react';
 
 import { CustomVariableModel } from '@grafana/data';
 
-import { MetricKind, ValueTypes } from '../dataquery.gen';
+import { MetricKind, ValueTypes } from '../dataquery';
 import { createMockDatasource } from '../mocks/cloudMonitoringDatasource';
 import { createMockMetricDescriptor } from '../mocks/cloudMonitoringMetricDescriptor';
 import { createMockTimeSeriesList } from '../mocks/cloudMonitoringQuery';

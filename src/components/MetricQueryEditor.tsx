@@ -5,7 +5,7 @@ import { SelectableValue, TimeRange } from '@grafana/data';
 import { EditorRows } from '@grafana/plugin-ui';
 import { Stack } from '@grafana/ui';
 
-import { AlignmentTypes, QueryType, TimeSeriesList, TimeSeriesQuery } from '../dataquery.gen';
+import { AlignmentTypes, QueryType, TimeSeriesList, TimeSeriesQuery } from '../dataquery';
 import CloudMonitoringDatasource from '../datasource';
 import { CloudMonitoringQuery } from '../types/query';
 import { CustomMetaData } from '../types/types';

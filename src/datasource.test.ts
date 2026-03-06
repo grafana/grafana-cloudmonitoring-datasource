@@ -4,7 +4,7 @@ import { lastValueFrom, of } from 'rxjs';
 import { CustomVariableModel, ScopedVars } from '@grafana/data';
 import { getTemplateSrv } from '@grafana/runtime';
 
-import { PreprocessorType, QueryType, MetricKind } from './dataquery.gen';
+import { PreprocessorType, QueryType, MetricKind } from './dataquery';
 import Datasource from './datasource';
 import { createMockInstanceSetttings } from './mocks/cloudMonitoringInstanceSettings';
 import { createMockQuery } from './mocks/cloudMonitoringQuery';

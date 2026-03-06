@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import * as React from 'react';
 
 import { SelectableValue, toOption } from '@grafana/data';
 import { AccessoryButton, EditorField, EditorList, EditorRow } from '@grafana/plugin-ui';
@@ -50,9 +51,7 @@ export const LabelFilter = ({ labels = {}, filters: filterArray, onChange: _onCh
       }
       return op.label === key;
     });
-    if (!keyPresent) {
-      options.push({ label: key, value: key });
-    }
+    const keyOptions = keyPresent ? options : [...options, { label: key, value: key }];
 
     const valueOptions = labels.hasOwnProperty(key)
       ? [variableOptionGroup, ...labels[key].map(toOption)]
@@ -62,7 +61,7 @@ export const LabelFilter = ({ labels = {}, filters: filterArray, onChange: _onCh
       valueOptions.push({ label: value, value });
     }
 
-    return { options, valueOptions };
+    return { options: keyOptions, valueOptions };
   };
 
   const onChange = (items: Array<Partial<Filter>>) => {

@@ -1,10 +1,11 @@
 import { useMemo } from 'react';
+import * as React from 'react';
 
 import { SelectableValue } from '@grafana/data';
 import { EditorField } from '@grafana/plugin-ui';
 import { RadioButtonGroup } from '@grafana/ui';
 
-import { PreprocessorType, TimeSeriesList, MetricKind, ValueTypes } from '../dataquery.gen';
+import { PreprocessorType, TimeSeriesList, MetricKind, ValueTypes } from '../dataquery';
 import { getAlignmentPickerData } from '../functions';
 import { MetricDescriptor } from '../types/types';
 

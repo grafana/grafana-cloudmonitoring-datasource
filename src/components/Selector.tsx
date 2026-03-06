@@ -1,9 +1,11 @@
+import * as React from 'react';
+
 import { SelectableValue } from '@grafana/data';
 import { EditorField } from '@grafana/plugin-ui';
 import { Select } from '@grafana/ui';
 
 import { SELECTORS } from '../constants';
-import { SLOQuery } from '../dataquery.gen';
+import { SLOQuery } from '../dataquery';
 import CloudMonitoringDatasource from '../datasource';
 
 export interface Props {

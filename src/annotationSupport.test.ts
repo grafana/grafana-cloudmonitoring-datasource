@@ -1,7 +1,7 @@
 import { AnnotationQuery } from '@grafana/data';
 
 import { CloudMonitoringAnnotationSupport } from './annotationSupport';
-import { AlignmentTypes, QueryType, MetricKind, LegacyCloudMonitoringAnnotationQuery } from './dataquery.gen';
+import { AlignmentTypes, QueryType, MetricKind, LegacyCloudMonitoringAnnotationQuery } from './dataquery';
 import { createMockDatasource } from './mocks/cloudMonitoringDatasource';
 import { CloudMonitoringQuery } from './types/query';
 

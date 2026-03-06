@@ -4,7 +4,7 @@ import { rangeUtil } from '@grafana/data';
 import { getTemplateSrv, TemplateSrv } from '@grafana/runtime';
 
 import { AGGREGATIONS, ALIGNMENTS, SYSTEM_LABELS } from './constants';
-import { AlignmentTypes, PreprocessorType, TimeSeriesList, MetricKind, ValueTypes } from './dataquery.gen';
+import { AlignmentTypes, PreprocessorType, TimeSeriesList, MetricKind, ValueTypes } from './dataquery';
 import CloudMonitoringDatasource from './datasource';
 import { CustomMetaData, MetricDescriptor } from './types/types';
 
