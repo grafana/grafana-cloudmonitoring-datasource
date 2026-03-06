@@ -4,7 +4,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/grafana/grafana-cloud-monitoring-datasource/pkg/cloud-monitoring/kinds/dataquery"
+	"github.com/grafana/grafana-cloud-monitoring-datasource/pkg/cloudmonitoring/kinds/dataquery"
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 
 	"github.com/stretchr/testify/assert"

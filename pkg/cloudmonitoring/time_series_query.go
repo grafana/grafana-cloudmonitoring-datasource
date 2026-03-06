@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	gcmTime "github.com/grafana/grafana-cloud-monitoring-datasource/pkg/cloud-monitoring/time"
+	gcmTime "github.com/grafana/grafana-cloud-monitoring-datasource/pkg/cloudmonitoring/time"
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
 	"github.com/grafana/grafana-plugin-sdk-go/data"

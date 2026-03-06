@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/grafana/grafana-cloud-monitoring-datasource/pkg/cloud-monitoring/kinds/dataquery"
+	"github.com/grafana/grafana-cloud-monitoring-datasource/pkg/cloudmonitoring/kinds/dataquery"
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	"github.com/grafana/grafana-plugin-sdk-go/experimental"
 	"github.com/stretchr/testify/require"

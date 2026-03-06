@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/grafana/grafana-cloud-monitoring-datasource/pkg/cloud-monitoring/kinds/dataquery"
+	"github.com/grafana/grafana-cloud-monitoring-datasource/pkg/cloudmonitoring/kinds/dataquery"
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	gdata "github.com/grafana/grafana-plugin-sdk-go/data"
 
