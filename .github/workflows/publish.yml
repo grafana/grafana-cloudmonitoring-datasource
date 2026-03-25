@@ -8,7 +8,7 @@ on:
         description: Branch to publish from. Can be used to deploy PRs to dev
         default: main
       environment:
-        description: Environment to publish to
+        description: Environment to publish to (only dev or ops while externalization is in progress)
         required: true
         type: choice
         options:
