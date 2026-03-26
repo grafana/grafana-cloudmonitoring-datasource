@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/grafana/grafana-cloud-monitoring-datasource/pkg/cloudmonitoring/converter"
+	"github.com/grafana/grafana-cloudmonitoring-datasource/pkg/cloudmonitoring/converter"
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
 	"github.com/grafana/grafana-plugin-sdk-go/data"
