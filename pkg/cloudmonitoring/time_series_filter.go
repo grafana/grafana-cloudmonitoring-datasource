@@ -12,7 +12,7 @@ import (
 	"github.com/grafana/grafana-plugin-sdk-go/data"
 	"github.com/huandu/xstrings"
 
-	"github.com/grafana/grafana-cloud-monitoring-datasource/pkg/cloudmonitoring/kinds/dataquery"
+	"github.com/grafana/grafana-cloudmonitoring-datasource/pkg/cloudmonitoring/kinds/dataquery"
 )
 
 func (timeSeriesFilter *cloudMonitoringTimeSeriesList) run(ctx context.Context, req *backend.QueryDataRequest,
