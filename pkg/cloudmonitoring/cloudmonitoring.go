@@ -22,7 +22,7 @@ import (
 	"github.com/grafana/grafana-plugin-sdk-go/backend/resource/httpadapter"
 	"github.com/grafana/grafana-plugin-sdk-go/data"
 
-	"github.com/grafana/grafana-cloud-monitoring-datasource/pkg/cloudmonitoring/kinds/dataquery"
+	"github.com/grafana/grafana-cloudmonitoring-datasource/pkg/cloudmonitoring/kinds/dataquery"
 )
 
 var (

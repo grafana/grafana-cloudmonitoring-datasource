@@ -1,4 +1,4 @@
-module github.com/grafana/grafana-cloud-monitoring-datasource
+module github.com/grafana/grafana-cloudmonitoring-datasource
 
 go 1.25.7
 
