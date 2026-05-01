@@ -1,0 +1,19 @@
+name: Scheduled Cloud end-to-end tests
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+jobs:
+  playwright-cloud:
+    uses: grafana/data-sources-ci-workflows/.github/workflows/playwright-cloud.yml@main
+    secrets: inherit
+    with:
+      repo-secrets: |
+        DS_INSTANCE_NAME=grafana-cloudmonitoring-datasource/gcm:name
+        DS_INSTANCE_AUTHN_TYPE=grafana-cloudmonitoring-datasource/gcm:json_authenticationType
+        DS_INSTANCE_DEFAULT_PROJECT=grafana-cloudmonitoring-datasource/gcm:json_defaultProject
+        DS_INSTANCE_CLIENT_EMAIL=grafana-cloudmonitoring-datasource/gcm:json_clientEmail
+        DS_INSTANCE_TOKEN_URI=grafana-cloudmonitoring-datasource/gcm:json_tokenUri
+        DS_INSTANCE_PRIVATE_KEY=grafana-cloudmonitoring-datasource/gcm:secure_privateKey
