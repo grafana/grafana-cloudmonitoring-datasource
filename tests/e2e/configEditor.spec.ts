@@ -68,7 +68,7 @@ test.describe('Config editor', () => {
       await expect(page.getByRole('textbox', { name: 'Project ID' })).toHaveValue(DS_DEFAULT_PROJECT);
       await expect(page.getByRole('textbox', { name: 'Client email' })).toHaveValue(DS_CLIENT_EMAIL);
       await expect(page.getByRole('textbox', { name: 'Token URI' })).toHaveValue(DS_TOKEN_URI);
-      await expect(page.getByRole('textbox', { name: 'Enter Private key' })).toHaveValue('configured');
+      await expect(page.getByRole('textbox', { name: 'Private key' })).toHaveValue('configured');
     });
   });
 
