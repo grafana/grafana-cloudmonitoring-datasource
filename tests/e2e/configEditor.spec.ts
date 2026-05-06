@@ -58,7 +58,7 @@ test.describe('Config editor', () => {
       // The provisioning file committed to the repo does not contain a real JWT,
       // so this test is skipped for local runs.
       test.skip(
-        !process.env.CI && !process.env.DS_INSTANCE_PRIVATE_KEY,
+        !process.env.DS_INSTANCE_PRIVATE_KEY,
         'Requires valid Google Cloud credentials — set DS_INSTANCE_PRIVATE_KEY or run in CI'
       );
       const ds = await readProvisionedDataSource<CloudMonitoringOptions>({ fileName: PROVISIONED_FILE });
@@ -82,7 +82,7 @@ test.describe('Config editor', () => {
       // The provisioning file committed to the repo does not contain a real JWT,
       // so this test is skipped for local runs.
       test.skip(
-        !process.env.CI && !process.env.DS_INSTANCE_PRIVATE_KEY,
+        !process.env.DS_INSTANCE_PRIVATE_KEY,
         'Requires valid Google Cloud credentials — set DS_INSTANCE_PRIVATE_KEY or run in CI'
       );
       const ds = await readProvisionedDataSource<CloudMonitoringOptions>({ fileName: PROVISIONED_FILE });

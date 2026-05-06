@@ -188,7 +188,7 @@ test.describe('Query editor with live data', () => {
     page,
   }) => {
     test.skip(
-      !process.env.CI && !process.env.DS_INSTANCE_PRIVATE_KEY,
+      !process.env.DS_INSTANCE_PRIVATE_KEY,
       'Requires valid Google Cloud credentials — set DS_INSTANCE_PRIVATE_KEY or run in CI'
     );
     const ds = await readProvisionedDataSource<CloudMonitoringOptions>({ fileName: PROVISIONED_FILE });
@@ -225,7 +225,7 @@ test.describe('Query editor with live data', () => {
 
   test('MQL mode: compute.googleapis.com/instance/cpu/utilization returns results', async ({ readProvisionedDataSource, page }) => {
     test.skip(
-      !process.env.CI && !process.env.DS_INSTANCE_PRIVATE_KEY,
+      !process.env.DS_INSTANCE_PRIVATE_KEY,
       'Requires valid Google Cloud credentials — set DS_INSTANCE_PRIVATE_KEY or run in CI'
     );
     const ds = await readProvisionedDataSource<CloudMonitoringOptions>({ fileName: PROVISIONED_FILE });
@@ -255,7 +255,7 @@ test.describe('Query editor with live data', () => {
 
   test('SLO mode: first SLO option returns results', async ({ readProvisionedDataSource, page }) => {
     test.skip(
-      !process.env.CI && !process.env.DS_INSTANCE_PRIVATE_KEY,
+      !process.env.DS_INSTANCE_PRIVATE_KEY,
       'Requires valid Google Cloud credentials — set DS_INSTANCE_PRIVATE_KEY or run in CI'
     );
     const ds = await readProvisionedDataSource<CloudMonitoringOptions>({ fileName: PROVISIONED_FILE });
@@ -294,7 +294,7 @@ test.describe('Query editor with live data', () => {
     page,
   }) => {
     test.skip(
-      !process.env.CI && !process.env.DS_INSTANCE_PRIVATE_KEY,
+      !process.env.DS_INSTANCE_PRIVATE_KEY,
       'Requires valid Google Cloud credentials — set DS_INSTANCE_PRIVATE_KEY or run in CI'
     );
     const ds = await readProvisionedDataSource<CloudMonitoringOptions>({ fileName: PROVISIONED_FILE });
