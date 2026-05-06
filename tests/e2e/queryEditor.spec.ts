@@ -343,6 +343,16 @@ test.describe('Query editor with live data', () => {
     );
     const ds = await readProvisionedDataSource<CloudMonitoringOptions>({ fileName: PROVISIONED_FILE });
     const queryPayload = {
+      timeSeriesList: {
+        promQLQuery: {
+          projectName: DS_DEFAULT_PROJECT,
+          expr: '{__name__="compute.googleapis.com/instance/cpu/utilization"}',
+          step: '60s'
+        },
+        projectName: DS_DEFAULT_PROJECT,
+        filters: [],
+        view: 'FULL'
+      },
       promQLQuery: {
         projectName: DS_DEFAULT_PROJECT,
         expr: '{__name__="compute.googleapis.com/instance/cpu/utilization"}',
