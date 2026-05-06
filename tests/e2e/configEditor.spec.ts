@@ -20,7 +20,7 @@ test.describe('Config editor', () => {
       async ({ createDataSourceConfigPage, page }) => {
         await createDataSourceConfigPage({ type: PLUGIN_TYPE });
 
-        await expect(page.getByText('Type: Google Cloud Monitoring', { exact: true })).toBeVisible();
+        await expect(page.getByText(/^Type\s*Google Cloud Monitoring$/, { exact: true })).toBeVisible();
         await expect(page.getByText('Authentication type', { exact: true })).toBeVisible();
       }
     );
