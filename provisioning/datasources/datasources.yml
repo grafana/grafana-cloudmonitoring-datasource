@@ -4,10 +4,11 @@ apiVersion: 1
 # https://grafana.com/docs/grafana/latest/datasources/google-cloud-monitoring/configure/#provision-the-data-source
 
 datasources:
-  - name: 'Google Cloud Monitoring'
-    type: 'stackdriver'
+  - name: Google Cloud Monitoring
+    uid: cloudmonitoring-e2e
+    type: stackdriver
     access: proxy
-    isDefault: false
+    isDefault: true
     orgId: 1
     version: 1
     editable: true

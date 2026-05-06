@@ -3,5 +3,18 @@ services:
     extends:
       file: .config/docker-compose-base.yaml
       service: grafana
-    volumes:
-      - ./custom.ini:/etc/grafana/grafana.ini
+    environment:
+      # Grafana 13 enables splashScreen by default; the overlay blocks Playwright interactions.
+      GF_FEATURE_TOGGLES_splashScreen: 'false'
+    configs:
+      # Run the externalized plugin in place of the core GCM plugin.
+      # Without as_external=true, DuplicatePluginIDValidation (pkg/services/pluginsintegration/pipeline/steps.go)
+      # drops the external plugin because the core one is already registered under id=stackdriver.
+      - source: grafana_custom_ini
+        target: /etc/grafana/grafana.ini
+
+configs:
+  grafana_custom_ini:
+    content: |
+      [plugin.stackdriver]
+      as_external = true
