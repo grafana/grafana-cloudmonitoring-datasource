@@ -76,6 +76,29 @@ test.describe('Query editor', () => {
 
     test('can select a service and metric name', async ({ readProvisionedDataSource, page }) => {
       const ds = await readProvisionedDataSource<CloudMonitoringOptions>({ fileName: PROVISIONED_FILE });
+      if (!process.env.DS_INSTANCE_PRIVATE_KEY) {
+        // Mock the Google Cloud Monitoring API response for metric descriptors.
+        await page.route(
+          (url) => url.pathname.includes('/resources/metricDescriptors/'),
+          (route) =>
+            route.fulfill({
+              status: 200,
+              contentType: 'application/json',
+              body: JSON.stringify([
+                {
+                  valueType: 'DOUBLE',
+                  metricKind: 'GAUGE',
+                  type: 'compute.googleapis.com/instance/cpu/utilization',
+                  unit: '1',
+                  service: 'compute.googleapis.com',
+                  serviceShortName: 'compute',
+                  displayName: 'CPU utilization',
+                  description: '',
+                },
+              ]),
+            })
+        );
+      }
       await page.goto(builderModeUrl(ds.uid));
 
       await page.getByRole('combobox', { name: 'Service', exact: true }).click();
@@ -136,6 +159,27 @@ test.describe('Query editor', () => {
 
     test('can select a service and SLO', async ({ readProvisionedDataSource, page }) => {
       const ds = await readProvisionedDataSource<CloudMonitoringOptions>({ fileName: PROVISIONED_FILE });
+      if (!process.env.DS_INSTANCE_PRIVATE_KEY) {
+        // Mock the Google Cloud Monitoring API responses for services and SLOs.
+        await page.route(
+          (url) => url.pathname.includes('/resources/services/'),
+          (route) =>
+            route.fulfill({
+              status: 200,
+              contentType: 'application/json',
+              body: JSON.stringify([{ value: 'example-service', label: 'Example Service' }]),
+            })
+        );
+        await page.route(
+          (url) => url.pathname.includes('/resources/slo-services/'),
+          (route) =>
+            route.fulfill({
+              status: 200,
+              contentType: 'application/json',
+              body: JSON.stringify([{ value: 'example-slo', label: 'Example SLO', goal: 0.99 }]),
+            })
+        );
+      }
       await page.goto(builderModeUrl(ds.uid));
 
       await expect(page.getByText('Query type:', { exact: true })).toBeVisible();
