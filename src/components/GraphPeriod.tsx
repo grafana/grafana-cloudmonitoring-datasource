@@ -1,5 +1,3 @@
-import * as React from 'react';
-
 import { SelectableValue } from '@grafana/data';
 import { EditorField, EditorRow } from '@grafana/plugin-ui';
 import { Stack, Switch } from '@grafana/ui';

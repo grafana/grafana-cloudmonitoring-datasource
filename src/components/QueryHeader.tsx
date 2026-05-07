@@ -1,5 +1,3 @@
-import * as React from 'react';
-
 import { EditorHeader, FlexItem, InlineSelect } from '@grafana/plugin-ui';
 
 import { QUERY_TYPES } from '../constants';
