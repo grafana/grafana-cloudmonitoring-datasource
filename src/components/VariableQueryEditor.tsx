@@ -1,5 +1,4 @@
 import { PureComponent } from 'react';
-import * as React from 'react';
 
 import { QueryEditorProps } from '@grafana/data';
 import { getTemplateSrv } from '@grafana/runtime';

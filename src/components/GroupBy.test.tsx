@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { openMenu, select } from 'react-select-event';
-import * as React from 'react';
 
 import { createMockTimeSeriesList } from '../mocks/cloudMonitoringQuery';
 import { MetricDescriptor } from '../types/types';

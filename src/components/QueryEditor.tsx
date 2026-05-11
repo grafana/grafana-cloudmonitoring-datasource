@@ -1,7 +1,6 @@
 import deepEqual from 'fast-deep-equal';
 import { isEqual } from 'lodash';
 import { useEffect, useState } from 'react';
-import * as React from 'react';
 
 import { QueryEditorProps, getDefaultTimeRange, toOption } from '@grafana/data';
 import { EditorRows } from '@grafana/plugin-ui';

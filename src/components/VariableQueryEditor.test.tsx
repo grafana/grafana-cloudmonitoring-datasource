@@ -1,5 +1,4 @@
 import { render, screen } from '@testing-library/react';
-import * as React from 'react';
 
 import { VariableModel } from '@grafana/data';
 

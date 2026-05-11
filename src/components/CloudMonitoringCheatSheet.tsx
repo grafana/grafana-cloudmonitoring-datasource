@@ -1,6 +1,5 @@
 import { css } from '@emotion/css';
 import { memo } from 'react';
-import * as React from 'react';
 
 import { QueryEditorHelpProps } from '@grafana/data';
 
