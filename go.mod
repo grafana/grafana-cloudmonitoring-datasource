@@ -1,6 +1,7 @@
 module github.com/grafana/grafana-cloudmonitoring-datasource
 
 go 1.26.3
+
 require (
 	github.com/andybalholm/brotli v1.2.0
 	github.com/grafana/grafana-google-sdk-go v0.4.2
