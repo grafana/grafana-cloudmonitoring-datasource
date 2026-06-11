@@ -1,7 +1,7 @@
 {
   "name": "cloud-monitoring",
   "description": "Grafana data source for Google Cloud Monitoring",
-  "version": "12.4.3",
+  "version": "12.5.0",
   "scripts": {
     "build": "webpack -c ./webpack.config.ts --env production",
     "dev": "webpack -w -c ./webpack.config.ts --env development",
@@ -75,7 +75,7 @@
   "dependencies": {
     "@emotion/css": "11.13.5",
     "@grafana/data": "12.4.2",
-    "@grafana/google-sdk": "0.4.1",
+    "@grafana/google-sdk": "0.6.0",
     "@grafana/i18n": "12.4.2",
     "@grafana/plugin-ui": "^0.13.1",
     "@grafana/runtime": "12.4.2",
