@@ -7,6 +7,7 @@ import { config, reportInteraction } from '@grafana/runtime';
 import { Divider, Field, Input, SecureSocksProxySettings, Stack } from '@grafana/ui';
 
 import { CloudMonitoringOptions, CloudMonitoringSecureJsonData } from '../../types/types';
+import { isCloud } from '../../utils';
 
 export type Props = DataSourcePluginOptionsEditorProps<CloudMonitoringOptions, CloudMonitoringSecureJsonData>;
 
@@ -30,7 +31,12 @@ export const ConfigEditor = memo(({ options, onOptionsChange }: Props) => {
         hasRequiredFields
       />
       <Divider />
-      <ConnectionConfig options={options} onOptionsChange={handleOnOptionsChange} enableOAuthPassthrough />
+      <ConnectionConfig
+        options={options}
+        onOptionsChange={handleOnOptionsChange}
+        enableOAuthPassthrough
+        enableWIF={isCloud()}
+      />
       {config.secureSocksDSProxyEnabled && (
         <>
           <Divider />

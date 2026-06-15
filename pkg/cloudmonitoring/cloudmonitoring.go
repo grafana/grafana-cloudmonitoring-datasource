@@ -49,16 +49,17 @@ var (
 )
 
 const (
-	gceAuthentication                  = "gce"
-	jwtAuthentication                  = "jwt"
-	forwardOAuthIdentityAuthentication = "forwardOAuthIdentity"
-	annotationQueryType                = dataquery.QueryTypeANNOTATION
-	timeSeriesListQueryType            = dataquery.QueryTypeTIMESERIESLIST
-	timeSeriesQueryQueryType           = dataquery.QueryTypeTIMESERIESQUERY
-	sloQueryType                       = dataquery.QueryTypeSLO
-	promQLQueryType                    = dataquery.QueryTypePROMQL
-	crossSeriesReducerDefault          = "REDUCE_NONE"
-	perSeriesAlignerDefault            = "ALIGN_MEAN"
+	gceAuthentication                        = "gce"
+	jwtAuthentication                        = "jwt"
+	forwardOAuthIdentityAuthentication       = "forwardOAuthIdentity"
+	workloadIdentityFederationAuthentication = "workloadIdentityFederation"
+	annotationQueryType                      = dataquery.QueryTypeANNOTATION
+	timeSeriesListQueryType                  = dataquery.QueryTypeTIMESERIESLIST
+	timeSeriesQueryQueryType                 = dataquery.QueryTypeTIMESERIESQUERY
+	sloQueryType                             = dataquery.QueryTypeSLO
+	promQLQueryType                          = dataquery.QueryTypePROMQL
+	crossSeriesReducerDefault                = "REDUCE_NONE"
+	perSeriesAlignerDefault                  = "ALIGN_MEAN"
 )
 
 const fromAlertHeaderName = "FromAlert"
@@ -69,6 +70,20 @@ const (
 	forwardOAuthIdentityForbiddenMessage             = "403 Forbidden: Permission denied. Make sure the https://www.googleapis.com/auth/monitoring.read scope is configured in Grafana's Google OAuth settings, and that the signed-in user has the Monitoring Viewer role on the default project."
 	forwardOAuthIdentityAlertingNotSupportedMessage  = "alerting queries are not supported with the Forward OAuth Identity authentication type; use Google JWT File or GCE Default Service Account for data sources used by alerting rules"
 )
+
+const (
+	workloadIdentityFederationUnauthorizedMessage         = "401 Unauthorized: The Workload Identity Federation token was rejected. Verify the workload identity pool provider is configured correctly and the federated identity is still valid."
+	workloadIdentityFederationForbiddenMessage            = "403 Forbidden: Permission denied. Make sure the Workload Identity Federation principal (or the impersonated service account) has the Monitoring Viewer role on the default project."
+	workloadIdentityFederationAlertingNotSupportedMessage = "alerting queries are not supported with the Workload Identity Federation authentication type; use Google JWT File or GCE Default Service Account for data sources used by alerting rules"
+)
+
+// isTokenForwardingAuth reports whether the authentication type relies on
+// Grafana forwarding an externally-issued bearer token (set by Grafana Cloud's
+// auth middleware) instead of the plugin managing its own credentials. Both
+// Forward OAuth Identity and Workload Identity Federation work this way.
+func isTokenForwardingAuth(authType string) bool {
+	return authType == forwardOAuthIdentityAuthentication || authType == workloadIdentityFederationAuthentication
+}
 
 func NewDatasource(ctx context.Context, settings backend.DataSourceInstanceSettings) (instancemgmt.Instance, error) {
 	hcp := httpclient.NewProvider()
@@ -132,11 +147,20 @@ func (ds *DataSource) CheckHealth(ctx context.Context, req *backend.CheckHealthR
 		status = backend.HealthStatusError
 		message = res.Status
 		if ds.info.oauthPassThru {
+			isWIF := ds.info.authenticationType == workloadIdentityFederationAuthentication
 			switch res.StatusCode {
 			case http.StatusUnauthorized:
-				message = forwardOAuthIdentityUnauthorizedMessage
+				if isWIF {
+					message = workloadIdentityFederationUnauthorizedMessage
+				} else {
+					message = forwardOAuthIdentityUnauthorizedMessage
+				}
 			case http.StatusForbidden:
-				message = forwardOAuthIdentityForbiddenMessage
+				if isWIF {
+					message = workloadIdentityFederationForbiddenMessage
+				} else {
+					message = forwardOAuthIdentityForbiddenMessage
+				}
 			}
 		}
 	}
@@ -171,6 +195,9 @@ type datasourceInfo struct {
 	usingImpersonation          bool
 	serviceAccountToImpersonate string
 	oauthPassThru               bool
+	// Workload Identity Federation fields (read by Grafana Cloud's auth middleware)
+	workloadIdentityPoolProvider string
+	wifServiceAccountEmail       string
 }
 
 type datasourceJSONData struct {
@@ -182,6 +209,9 @@ type datasourceJSONData struct {
 	UsingImpersonation          bool   `json:"usingImpersonation"`
 	ServiceAccountToImpersonate string `json:"serviceAccountToImpersonate"`
 	OAuthPassThru               bool   `json:"oauthPassThru"`
+	// Workload Identity Federation fields (read by Grafana Cloud's auth middleware)
+	WorkloadIdentityPoolProvider string `json:"workloadIdentityPoolProvider"`
+	WifServiceAccountEmail       string `json:"wifServiceAccountEmail"`
 }
 
 type datasourceService struct {
@@ -201,18 +231,20 @@ func newDatasourceInfo(httpClientProvider httpclient.Provider, ctx context.Conte
 	}
 
 	dsInfo := &datasourceInfo{
-		id:                          settings.ID,
-		updated:                     settings.Updated,
-		url:                         settings.URL,
-		authenticationType:          jsonData.AuthenticationType,
-		defaultProject:              jsonData.DefaultProject,
-		clientEmail:                 jsonData.ClientEmail,
-		tokenUri:                    jsonData.TokenURI,
-		universeDomain:              jsonData.UniverseDomain,
-		usingImpersonation:          jsonData.UsingImpersonation,
-		serviceAccountToImpersonate: jsonData.ServiceAccountToImpersonate,
-		oauthPassThru:               jsonData.OAuthPassThru,
-		services:                    map[string]datasourceService{},
+		id:                           settings.ID,
+		updated:                      settings.Updated,
+		url:                          settings.URL,
+		authenticationType:           jsonData.AuthenticationType,
+		defaultProject:               jsonData.DefaultProject,
+		clientEmail:                  jsonData.ClientEmail,
+		tokenUri:                     jsonData.TokenURI,
+		universeDomain:               jsonData.UniverseDomain,
+		usingImpersonation:           jsonData.UsingImpersonation,
+		serviceAccountToImpersonate:  jsonData.ServiceAccountToImpersonate,
+		oauthPassThru:                jsonData.OAuthPassThru,
+		workloadIdentityPoolProvider: jsonData.WorkloadIdentityPoolProvider,
+		wifServiceAccountEmail:       jsonData.WifServiceAccountEmail,
+		services:                     map[string]datasourceService{},
 	}
 
 	dsInfo.privateKey, err = utils.GetPrivateKey(&settings)
@@ -225,7 +257,7 @@ func newDatasourceInfo(httpClientProvider httpclient.Provider, ctx context.Conte
 		return nil, err
 	}
 
-	if jsonData.AuthenticationType == forwardOAuthIdentityAuthentication {
+	if isTokenForwardingAuth(jsonData.AuthenticationType) {
 		opts.ForwardHTTPHeaders = true
 	}
 
@@ -373,11 +405,16 @@ func (ds *DataSource) QueryData(ctx context.Context, req *backend.QueryDataReque
 		return nil, err
 	}
 
-	// OAuth passthrough requires a signed-in user to source the bearer token from.
-	// Alert rule evaluations run without a user context, so fail fast with a clear
-	// message rather than letting the request reach GCM with no Authorization header.
+	// Token-forwarding auth (Forward OAuth Identity, Workload Identity Federation)
+	// requires a signed-in user to source the bearer token from. Alert rule
+	// evaluations run without a user context, so fail fast with a clear message
+	// rather than letting the request reach GCM with no Authorization header.
 	if ds.info.oauthPassThru && req.Headers[fromAlertHeaderName] == "true" {
-		return nil, backend.DownstreamError(errors.New(forwardOAuthIdentityAlertingNotSupportedMessage))
+		message := forwardOAuthIdentityAlertingNotSupportedMessage
+		if ds.info.authenticationType == workloadIdentityFederationAuthentication {
+			message = workloadIdentityFederationAlertingNotSupportedMessage
+		}
+		return nil, backend.DownstreamError(errors.New(message))
 	}
 
 	// There aren't any possible downstream errors here

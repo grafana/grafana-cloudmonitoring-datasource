@@ -1,6 +1,7 @@
 package cloudmonitoring
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/grafana/grafana-google-sdk-go/pkg/tokenprovider"
@@ -34,7 +35,10 @@ var routes = map[string]routeInfo{
 }
 
 func getMiddleware(model *datasourceInfo, routePath string) (httpclient.Middleware, error) {
-	if model.authenticationType == forwardOAuthIdentityAuthentication {
+	// Token-forwarding auth types (Forward OAuth Identity, Workload Identity
+	// Federation) carry an Authorization header set by Grafana, so there's no
+	// token provider middleware to add.
+	if isTokenForwardingAuth(model.authenticationType) {
 		return nil, nil
 	}
 
@@ -80,6 +84,10 @@ func buildURL(route string, universeDomain string) string {
 }
 
 func newHTTPClient(model *datasourceInfo, opts httpclient.Options, clientProvider *httpclient.Provider, route string) (*http.Client, error) {
+	if model.authenticationType == workloadIdentityFederationAuthentication && model.workloadIdentityPoolProvider == "" {
+		return nil, fmt.Errorf("workloadIdentityFederation requires workloadIdentityPoolProvider to be configured")
+	}
+
 	m, err := getMiddleware(model, route)
 	if err != nil {
 		return nil, err
