@@ -2,6 +2,9 @@ name: Run commands when issues are labeled
 on:
   issues:
     types: [labeled]
+
+permissions: {}
+
 jobs:
   main:
     runs-on: ubuntu-latest
@@ -19,7 +22,7 @@ jobs:
           persist-credentials: false
 
       - name: Install Actions
-        run: npm install --production --prefix ./actions
+        run: npm install --production --ignore-scripts --allow-git=none --registry=https://registry.npmjs.org/ --prefix ./actions
 
       - id: get-github-token
         uses: grafana/shared-workflows/actions/create-github-app-token@46f48da11e78ebdba7a8747ae456b11062fac83e # create-github-app-token/v0.3.1
