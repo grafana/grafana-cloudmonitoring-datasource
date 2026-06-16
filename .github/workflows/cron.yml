@@ -5,8 +5,14 @@ on:
     - cron: '0 6 * * *'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   playwright-cloud:
+    permissions:
+      contents: read
+      id-token: write
     uses: grafana/data-sources-ci-workflows/.github/workflows/playwright-cloud.yml@main
     secrets: inherit
     with:
