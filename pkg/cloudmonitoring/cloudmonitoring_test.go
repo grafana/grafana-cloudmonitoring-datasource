@@ -1332,3 +1332,26 @@ func TestQueryData_forwardOAuthIdentity(t *testing.T) {
 		}
 	})
 }
+
+func TestQueryData_invalidQueryJSONIsDownstreamError(t *testing.T) {
+	ds := &DataSource{
+		info:   &datasourceInfo{},
+		logger: backend.NewLoggerWith("logger", "test"),
+	}
+	_, err := ds.QueryData(context.Background(), &backend.QueryDataRequest{
+		Queries: []backend.DataQuery{
+			{
+				RefID:     "A",
+				QueryType: string(dataquery.QueryTypeTIMESERIESLIST),
+				JSON: json.RawMessage(`{
+					"timeSeriesList": {
+						"filters": "resource.type=\"gce_instance\""
+					}
+				}`),
+			},
+		},
+	})
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "could not unmarshal CloudMonitoringQuery json")
+	assert.True(t, backend.IsDownstreamError(err))
+}
