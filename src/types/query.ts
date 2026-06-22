@@ -1,4 +1,4 @@
-import { CloudMonitoringQuery as CloudMonitoringQueryBase, QueryType } from '../dataquery';
+import { type CloudMonitoringQuery as CloudMonitoringQueryBase, type QueryType } from '../dataquery';
 
 /**
  * Represents the query as it moves through the frontend query editor and datasource files.

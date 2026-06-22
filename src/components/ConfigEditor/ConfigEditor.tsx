@@ -1,6 +1,6 @@
 import { memo, useMemo } from 'react';
 
-import { DataSourcePluginOptionsEditorProps, updateDatasourcePluginJsonDataOption } from '@grafana/data';
+import { type DataSourcePluginOptionsEditorProps, updateDatasourcePluginJsonDataOption } from '@grafana/data';
 import {
   AuthConfig,
   GoogleAuthType,
@@ -12,7 +12,7 @@ import { ConfigSection, DataSourceDescription } from '@grafana/plugin-ui';
 import { config, reportInteraction } from '@grafana/runtime';
 import { Alert, Divider, Field, Input, SecureSocksProxySettings, Stack } from '@grafana/ui';
 
-import { CloudMonitoringOptions, CloudMonitoringSecureJsonData } from '../../types/types';
+import { type CloudMonitoringOptions, type CloudMonitoringSecureJsonData } from '../../types/types';
 import { isCloud } from '../../utils';
 
 export type Props = DataSourcePluginOptionsEditorProps<CloudMonitoringOptions, CloudMonitoringSecureJsonData>;
