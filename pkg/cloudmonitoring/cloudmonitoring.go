@@ -273,7 +273,7 @@ func migrateRequest(req *backend.QueryDataRequest) error {
 			var mq dataquery.TimeSeriesList
 			err = json.Unmarshal(q.JSON, &mq)
 			if err != nil {
-				return err
+				return backend.DownstreamError(fmt.Errorf("could not unmarshal legacy CloudMonitoring query: %w", err))
 			}
 			q.QueryType = string(dataquery.QueryTypeTIMESERIESLIST)
 			gq := grafanaQuery{
@@ -321,7 +321,7 @@ func migrateRequest(req *backend.QueryDataRequest) error {
 				tsl := &dataquery.TimeSeriesList{}
 				err = json.Unmarshal(tslb, tsl)
 				if err != nil {
-					return err
+					return backend.DownstreamError(fmt.Errorf("could not unmarshal metric query: %w", err))
 				}
 				if metricQuery["metricType"] != nil {
 					// metricType should be a filter
@@ -380,7 +380,6 @@ func (ds *DataSource) QueryData(ctx context.Context, req *backend.QueryDataReque
 		return nil, backend.DownstreamError(errors.New(forwardOAuthIdentityAlertingNotSupportedMessage))
 	}
 
-	// There aren't any possible downstream errors here
 	queries, err := ds.buildQueryExecutors(logger, req)
 	if err != nil {
 		return nil, err
@@ -422,7 +421,7 @@ func queryModel(query backend.DataQuery) (grafanaQuery, error) {
 	var q grafanaQuery
 	err := json.Unmarshal(query.JSON, &q)
 	if err != nil {
-		return grafanaQuery{}, err
+		return grafanaQuery{}, backend.DownstreamError(fmt.Errorf("could not unmarshal CloudMonitoringQuery json: %w", err))
 	}
 	return q, nil
 }
@@ -436,7 +435,7 @@ func (ds *DataSource) buildQueryExecutors(logger log.Logger, req *backend.QueryD
 		durationSeconds := int(endTime.Sub(startTime).Seconds())
 		q, err := queryModel(query)
 		if err != nil {
-			return nil, fmt.Errorf("could not unmarshal CloudMonitoringQuery json: %w", err)
+			return nil, err
 		}
 
 		var queryInterface cloudMonitoringQueryExecutor
