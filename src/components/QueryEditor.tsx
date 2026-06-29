@@ -88,14 +88,15 @@ export const QueryEditor = (props: Props) => {
     setCurrentQuery(q);
   };
 
-  // Forward OAuth Identity has no signed-in user during alert rule evaluation,
-  // so the data source can't forward a token. Show a clear message instead of
-  // letting the user compose a query that will always fail at runtime.
-  if (
-    datasource.authenticationType === GoogleAuthType.ForwardOAuthIdentity &&
-    (app === CoreApp.UnifiedAlerting || app === CoreApp.CloudAlerting)
-  ) {
-    return <OAuthPassthroughAlertingAlert />;
+  // Token-forwarding auth (Forward OAuth Identity, Workload Identity Federation)
+  // has no signed-in user during alert rule evaluation, so the data source can't
+  // forward a token. Show a clear message instead of letting the user compose a
+  // query that will always fail at runtime.
+  const isTokenForwardingAuth =
+    datasource.authenticationType === GoogleAuthType.ForwardOAuthIdentity ||
+    datasource.authenticationType === GoogleAuthType.WIF;
+  if (isTokenForwardingAuth && (app === CoreApp.UnifiedAlerting || app === CoreApp.CloudAlerting)) {
+    return <TokenForwardingAlertingAlert />;
   }
 
   return (
@@ -161,11 +162,11 @@ export const QueryEditor = (props: Props) => {
   );
 };
 
-const OAuthPassthroughAlertingAlert = () => {
+const TokenForwardingAlertingAlert = () => {
   return (
     <Alert title="Unsupported authentication provider" data-testid="cloud-monitoring-oauth-passthrough-alerting-alert">
-      Forward OAuth Identity authentication is not supported. Use Google JWT File or GCE Default Service Account
-      authentication for data sources used by alerting rules. Refer to the{' '}
+      Forward OAuth Identity and Workload Identity Federation authentication are not supported. Use Google JWT File or
+      GCE Default Service Account authentication for data sources used by alerting rules. Refer to the{' '}
       <TextLink
         href="https://grafana.com/docs/grafana/latest/datasources/google-cloud-monitoring/google-authentication/"
         external

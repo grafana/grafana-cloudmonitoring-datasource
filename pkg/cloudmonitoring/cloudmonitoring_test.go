@@ -56,6 +56,30 @@ func TestNewDatasourceInfo(t *testing.T) {
 		assert.NotNil(t, dsInfo.services[cloudMonitor].client)
 		assert.NotNil(t, dsInfo.services[resourceManager].client)
 	})
+
+	t.Run("should parse workloadIdentityFederation authentication", func(t *testing.T) {
+		cli := httpclient.NewProvider()
+		dsInfo, err := newDatasourceInfo(*cli, context.Background(), backend.DataSourceInstanceSettings{
+			JSONData: json.RawMessage(`{"authenticationType": "workloadIdentityFederation", "oauthPassThru": true, "defaultProject": "p1", "workloadIdentityPoolProvider": "projects/123/locations/global/workloadIdentityPools/pool/providers/provider", "wifServiceAccountEmail": "sa@p1.iam.gserviceaccount.com"}`),
+		})
+		require.NoError(t, err)
+		assert.Equal(t, workloadIdentityFederationAuthentication, dsInfo.authenticationType)
+		assert.True(t, dsInfo.oauthPassThru)
+		assert.Equal(t, "p1", dsInfo.defaultProject)
+		assert.Equal(t, "projects/123/locations/global/workloadIdentityPools/pool/providers/provider", dsInfo.workloadIdentityPoolProvider)
+		assert.Equal(t, "sa@p1.iam.gserviceaccount.com", dsInfo.wifServiceAccountEmail)
+		assert.NotNil(t, dsInfo.services[cloudMonitor].client)
+		assert.NotNil(t, dsInfo.services[resourceManager].client)
+	})
+
+	t.Run("workloadIdentityFederation without a pool provider returns an error", func(t *testing.T) {
+		cli := httpclient.NewProvider()
+		_, err := newDatasourceInfo(*cli, context.Background(), backend.DataSourceInstanceSettings{
+			JSONData: json.RawMessage(`{"authenticationType": "workloadIdentityFederation", "oauthPassThru": true, "defaultProject": "p1"}`),
+		})
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "workloadIdentityPoolProvider")
+	})
 }
 
 func TestCloudMonitoring(t *testing.T) {
@@ -1270,6 +1294,105 @@ func TestCheckHealth(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, backend.HealthStatusError, res.Status)
 		assert.NotContains(t, res.Message, "Monitoring Viewer role")
+	})
+
+	t.Run("workloadIdentityFederation without a default project returns an error", func(t *testing.T) {
+		ds := &DataSource{
+			info: &datasourceInfo{
+				authenticationType: workloadIdentityFederationAuthentication,
+				oauthPassThru:      true,
+				defaultProject:     "",
+			},
+		}
+		res, err := ds.CheckHealth(context.Background(), &backend.CheckHealthRequest{
+			PluginContext: backend.PluginContext{
+				DataSourceInstanceSettings: &backend.DataSourceInstanceSettings{},
+			},
+		})
+		assert.Nil(t, err)
+		assert.Equal(t, backend.HealthStatusError, res.Status)
+		assert.Contains(t, res.Message, "Default project is required")
+	})
+
+	t.Run("workloadIdentityFederation surfaces a WIF-specific message on 401 Unauthorized", func(t *testing.T) {
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusUnauthorized)
+		}))
+		t.Cleanup(ts.Close)
+
+		ds := &DataSource{
+			info: &datasourceInfo{
+				authenticationType: workloadIdentityFederationAuthentication,
+				oauthPassThru:      true,
+				defaultProject:     "p1",
+				services: map[string]datasourceService{
+					cloudMonitor: {url: ts.URL, client: http.DefaultClient},
+				},
+			},
+			logger: backend.NewLoggerWith("logger", "test"),
+		}
+		res, err := ds.CheckHealth(context.Background(), &backend.CheckHealthRequest{
+			PluginContext: backend.PluginContext{
+				DataSourceInstanceSettings: &backend.DataSourceInstanceSettings{},
+			},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, backend.HealthStatusError, res.Status)
+		assert.Contains(t, res.Message, "Workload Identity Federation")
+		assert.NotContains(t, res.Message, "Google OAuth")
+	})
+
+	t.Run("workloadIdentityFederation surfaces a WIF-specific message on 403 Forbidden", func(t *testing.T) {
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusForbidden)
+		}))
+		t.Cleanup(ts.Close)
+
+		ds := &DataSource{
+			info: &datasourceInfo{
+				authenticationType: workloadIdentityFederationAuthentication,
+				oauthPassThru:      true,
+				defaultProject:     "p1",
+				services: map[string]datasourceService{
+					cloudMonitor: {url: ts.URL, client: http.DefaultClient},
+				},
+			},
+			logger: backend.NewLoggerWith("logger", "test"),
+		}
+		res, err := ds.CheckHealth(context.Background(), &backend.CheckHealthRequest{
+			PluginContext: backend.PluginContext{
+				DataSourceInstanceSettings: &backend.DataSourceInstanceSettings{},
+			},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, backend.HealthStatusError, res.Status)
+		assert.Contains(t, res.Message, "Workload Identity Federation")
+	})
+}
+
+func TestQueryData_workloadIdentityFederation(t *testing.T) {
+	t.Run("rejects alerting queries with a WIF-specific message", func(t *testing.T) {
+		ds := &DataSource{
+			info: &datasourceInfo{
+				authenticationType: workloadIdentityFederationAuthentication,
+				oauthPassThru:      true,
+				defaultProject:     "p1",
+			},
+			logger: backend.NewLoggerWith("logger", "test"),
+		}
+
+		_, err := ds.QueryData(context.Background(), &backend.QueryDataRequest{
+			PluginContext: backend.PluginContext{
+				DataSourceInstanceSettings: &backend.DataSourceInstanceSettings{},
+			},
+			Headers: map[string]string{"FromAlert": "true"},
+			Queries: []backend.DataQuery{
+				{RefID: "A", QueryType: string(dataquery.QueryTypeTIMESERIESLIST), JSON: json.RawMessage(`{}`)},
+			},
+		})
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "Workload Identity Federation")
+		assert.True(t, backend.IsDownstreamError(err))
 	})
 }
 
