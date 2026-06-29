@@ -1,5 +1,9 @@
 # Changelog
 
+## 12.5.2
+
+- Classified invalid query JSON as downstream errors.
+
 ## 12.5.1
 
 - Added included dashboards back to plugin.json.
