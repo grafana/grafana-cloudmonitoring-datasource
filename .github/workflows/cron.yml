@@ -13,7 +13,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    uses: grafana/data-sources-ci-workflows/.github/workflows/playwright-cloud.yml@d0cd847270085524b96b0e1aebc0cb3efd121c40 # main
+    uses: grafana/data-sources-ci-workflows/.github/workflows/playwright-cloud.yml@51ac69d43a199cee552c96fc184f15d64ea75892 # main
     secrets: inherit
     with:
       repo-secrets: |
