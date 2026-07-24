@@ -769,6 +769,38 @@ func TestCloudMonitoring(t *testing.T) {
 			qqqueries := getCloudMonitoringSLOFromInterface(t, qes)
 			assert.Equal(t, `aggregation.alignmentPeriod=%2B60s&aggregation.perSeriesAligner=ALIGN_NEXT_OLDER&filter=select_slo_burn_rate%28%22projects%2Ftest-proj%2Fservices%2Ftest-service%2FserviceLevelObjectives%2Ftest-slo%22%2C+%221h%22%29&interval.endTime=2018-03-15T13%3A34%3A00Z&interval.startTime=2018-03-15T13%3A00%3A00Z`, qqqueries[0].params.Encode())
 		})
+
+		t.Run("and query type is PromQL without other sub-query keys", func(t *testing.T) {
+			// File-provisioned PromQL targets typically only include promQLQuery (no vestigial
+			// timeSeriesList). migrateRequest must not treat these as legacy queries.
+			req.Queries[0].JSON = json.RawMessage(`{
+				"queryType": "promQL",
+				"promQLQuery": {
+					"projectName": "my-project",
+					"expr": "up",
+					"step": "60s"
+				}
+			}`)
+			req.Queries[0].QueryType = string(dataquery.QueryTypePROMQL)
+			err := migrateRequest(req)
+			require.NoError(t, err)
+
+			var rawQuery map[string]any
+			err = json.Unmarshal(req.Queries[0].JSON, &rawQuery)
+			require.NoError(t, err)
+			require.NotNil(t, rawQuery["promQLQuery"])
+			assert.Equal(t, string(dataquery.QueryTypePROMQL), req.Queries[0].QueryType)
+
+			qes, err := ds.buildQueryExecutors(ds.logger, req)
+			require.NoError(t, err)
+			queries := getCloudMonitoringPromFromInterface(t, qes)
+			require.Len(t, queries, 1)
+			require.NotNil(t, queries[0].parameters)
+			assert.Equal(t, "A", queries[0].refID)
+			assert.Equal(t, "my-project", queries[0].parameters.ProjectName)
+			assert.Equal(t, "up", queries[0].parameters.Expr)
+			assert.Equal(t, "60s", queries[0].parameters.Step)
+		})
 	})
 
 	t.Run("when interpolating filter wildcards", func(t *testing.T) {
@@ -1039,6 +1071,18 @@ func getCloudMonitoringQueryFromInterface(t *testing.T, qes []cloudMonitoringQue
 	queries := make([]*cloudMonitoringTimeSeriesQuery, 0, len(qes))
 	for _, qi := range qes {
 		q, ok := qi.(*cloudMonitoringTimeSeriesQuery)
+		require.Truef(t, ok, "Received wrong type %T", qi)
+		queries = append(queries, q)
+	}
+	return queries
+}
+
+func getCloudMonitoringPromFromInterface(t *testing.T, qes []cloudMonitoringQueryExecutor) []*cloudMonitoringProm {
+	t.Helper()
+
+	queries := make([]*cloudMonitoringProm, 0, len(qes))
+	for _, qi := range qes {
+		q, ok := qi.(*cloudMonitoringProm)
 		require.Truef(t, ok, "Received wrong type %T", qi)
 		queries = append(queries, q)
 	}
