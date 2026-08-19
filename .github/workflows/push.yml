@@ -21,7 +21,9 @@ jobs:
 
   publish-and-deploy:
     if: github.ref == 'refs/heads/main'
-    uses: grafana/data-sources-ci-workflows/.github/workflows/cd-dev.yml@d0cd847270085524b96b0e1aebc0cb3efd121c40 # main
+    # Intentionally pinned to @main: data-sources-ci-workflows does not publish
+    # versioned tags for cd-dev.yml yet. Review periodically.
+    uses: grafana/data-sources-ci-workflows/.github/workflows/cd-dev.yml@main # zizmor: ignore[unpinned-uses]
     permissions:
       attestations: write
       contents: write
