@@ -1478,3 +1478,43 @@ func TestQueryData_invalidQueryJSONIsDownstreamError(t *testing.T) {
 	assert.Contains(t, err.Error(), "could not unmarshal CloudMonitoringQuery json")
 	assert.True(t, backend.IsDownstreamError(err))
 }
+
+func TestBuildQueryExecutorsMissingSubQuery(t *testing.T) {
+	// A query model whose queryType has no matching sub-object used to panic with a
+	// nil pointer dereference when the executor dereferenced its parameters. In the
+	// alerting path that panic surfaced as an execution error on every evaluation, so
+	// the rule's state was driven by execErrState rather than by its condition.
+	ds := &DataSource{}
+
+	for _, tc := range []struct {
+		name      string
+		queryType string
+		wantErr   string
+	}{
+		{"promQL", "promQL", "missing promQLQuery"},
+		{"timeSeriesList", "timeSeriesList", "missing timeSeriesList"},
+		{"timeSeriesQuery", "timeSeriesQuery", "missing timeSeriesQuery"},
+		{"slo", "slo", "missing sloQuery"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			req := &backend.QueryDataRequest{
+				Queries: []backend.DataQuery{
+					{
+						RefID:     "A",
+						QueryType: tc.queryType,
+						TimeRange: backend.TimeRange{From: time.Now().Add(-1 * time.Hour), To: time.Now()},
+						JSON:      json.RawMessage(`{"aliasBy":"testalias"}`),
+					},
+				},
+			}
+
+			require.NotPanics(t, func() {
+				qes, err := ds.buildQueryExecutors(ds.logger, req)
+				require.Error(t, err)
+				assert.Contains(t, err.Error(), tc.wantErr)
+				assert.Contains(t, err.Error(), "A")
+				assert.Nil(t, qes)
+			})
+		})
+	}
+}
