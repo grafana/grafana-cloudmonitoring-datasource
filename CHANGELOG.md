@@ -1,5 +1,10 @@
 # Changelog
 
+## 12.6.2
+
+- Bump go v1.26.7 and grafana-plugin-sdk-go v0.296.4 ([#109](https://github.com/grafana/grafana-cloudmonitoring-datasource/pull/109))
+- Update contribution document ([#98](https://github.com/grafana/grafana-cloudmonitoring-datasource/pull/98))
+
 ## 12.6.1
 
 - Removed included dashboards from plugin.json.
