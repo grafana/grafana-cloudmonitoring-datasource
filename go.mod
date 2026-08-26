@@ -1,17 +1,17 @@
 module github.com/grafana/grafana-cloudmonitoring-datasource
 
-go 1.26.5
+go 1.26.7
 
 require (
 	github.com/andybalholm/brotli v1.2.2
 	github.com/grafana/grafana-google-sdk-go v0.4.2
-	github.com/grafana/grafana-plugin-sdk-go v0.296.3
+	github.com/grafana/grafana-plugin-sdk-go v0.296.4
 	github.com/huandu/xstrings v1.5.0
 	github.com/json-iterator/go v1.1.12
 	github.com/magefile/mage v1.17.2
 	github.com/stretchr/testify v1.12.1
-	go.opentelemetry.io/otel v1.45.0
-	go.opentelemetry.io/otel/trace v1.45.0
+	go.opentelemetry.io/otel v1.46.0
+	go.opentelemetry.io/otel/trace v1.46.0
 )
 
 require (
@@ -85,7 +85,7 @@ require (
 	go.opentelemetry.io/contrib/samplers/jaegerremote v0.37.2 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.45.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.45.0 // indirect
-	go.opentelemetry.io/otel/metric v1.45.0 // indirect
+	go.opentelemetry.io/otel/metric v1.46.0 // indirect
 	go.opentelemetry.io/otel/sdk v1.45.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.11.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
