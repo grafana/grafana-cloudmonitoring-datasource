@@ -664,7 +664,7 @@ func (ds *DataSource) ensureProject(ctx context.Context, dsInfo datasourceInfo, 
 }
 
 func (ds *DataSource) getDefaultProject(ctx context.Context, dsInfo datasourceInfo) (string, error) {
-	if dsInfo.authenticationType == gceAuthentication {
+	if dsInfo.authenticationType == gceAuthentication && dsInfo.defaultProject == "" {
 		project, err := ds.gceDefaultProjectGetter(ctx, cloudMonitorScope)
 		if err != nil {
 			return project, backend.DownstreamError(err)

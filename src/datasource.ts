@@ -177,7 +177,7 @@ export default class CloudMonitoringDatasource extends DataSourceWithBackend<
   getDefaultProject(): string {
     const { defaultProject, authenticationType, gceDefaultProject } = this.instanceSettings.jsonData;
     if (authenticationType === 'gce') {
-      return gceDefaultProject || '';
+      return defaultProject || gceDefaultProject || '';
     }
 
     return defaultProject || '';
