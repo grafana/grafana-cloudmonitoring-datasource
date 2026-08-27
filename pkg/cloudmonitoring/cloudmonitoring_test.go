@@ -1198,6 +1198,67 @@ func TestCheckHealth(t *testing.T) {
 		}, res)
 	})
 
+	t.Run("GCE authentication checks the configured default project when one is set", func(t *testing.T) {
+		var requestedPath string
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			requestedPath = r.URL.Path
+			w.WriteHeader(http.StatusOK)
+		}))
+		t.Cleanup(ts.Close)
+
+		ds := &DataSource{
+			info: &datasourceInfo{
+				authenticationType: gceAuthentication,
+				defaultProject:     "configured-project",
+				services: map[string]datasourceService{
+					cloudMonitor: {url: ts.URL, client: http.DefaultClient},
+				},
+			},
+			gceDefaultProjectGetter: func(ctx context.Context, scope string) (string, error) {
+				return "gce-metadata-project", nil
+			},
+			logger: backend.NewLoggerWith("logger", "test"),
+		}
+		res, err := ds.CheckHealth(context.Background(), &backend.CheckHealthRequest{
+			PluginContext: backend.PluginContext{
+				DataSourceInstanceSettings: &backend.DataSourceInstanceSettings{},
+			},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, backend.HealthStatusOk, res.Status)
+		assert.Equal(t, "/v3/projects/configured-project/metricDescriptors", requestedPath)
+	})
+
+	t.Run("GCE authentication falls back to the metadata project when no default project is set", func(t *testing.T) {
+		var requestedPath string
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			requestedPath = r.URL.Path
+			w.WriteHeader(http.StatusOK)
+		}))
+		t.Cleanup(ts.Close)
+
+		ds := &DataSource{
+			info: &datasourceInfo{
+				authenticationType: gceAuthentication,
+				services: map[string]datasourceService{
+					cloudMonitor: {url: ts.URL, client: http.DefaultClient},
+				},
+			},
+			gceDefaultProjectGetter: func(ctx context.Context, scope string) (string, error) {
+				return "gce-metadata-project", nil
+			},
+			logger: backend.NewLoggerWith("logger", "test"),
+		}
+		res, err := ds.CheckHealth(context.Background(), &backend.CheckHealthRequest{
+			PluginContext: backend.PluginContext{
+				DataSourceInstanceSettings: &backend.DataSourceInstanceSettings{},
+			},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, backend.HealthStatusOk, res.Status)
+		assert.Equal(t, "/v3/projects/gce-metadata-project/metricDescriptors", requestedPath)
+	})
+
 	t.Run("forwardOAuthIdentity without a default project returns an error", func(t *testing.T) {
 		ds := &DataSource{
 			info: &datasourceInfo{
