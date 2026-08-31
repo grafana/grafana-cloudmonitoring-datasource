@@ -478,6 +478,9 @@ func (ds *DataSource) buildQueryExecutors(logger log.Logger, req *backend.QueryD
 		var queryInterface cloudMonitoringQueryExecutor
 		switch query.QueryType {
 		case string(dataquery.QueryTypeTIMESERIESLIST), string(dataquery.QueryTypeANNOTATION):
+			if q.TimeSeriesList == nil {
+				return nil, backend.DownstreamError(fmt.Errorf("query %s: missing timeSeriesList in query model for query type %q", query.RefID, query.QueryType))
+			}
 			cmtsf := &cloudMonitoringTimeSeriesList{
 				refID:     query.RefID,
 				aliasBy:   q.AliasBy,
@@ -491,6 +494,9 @@ func (ds *DataSource) buildQueryExecutors(logger log.Logger, req *backend.QueryD
 			cmtsf.setParams(startTime, endTime, durationSeconds, query.Interval.Milliseconds())
 			queryInterface = cmtsf
 		case string(dataquery.QueryTypeTIMESERIESQUERY):
+			if q.TimeSeriesQuery == nil {
+				return nil, backend.DownstreamError(fmt.Errorf("query %s: missing timeSeriesQuery in query model for query type %q", query.RefID, query.QueryType))
+			}
 			queryInterface = &cloudMonitoringTimeSeriesQuery{
 				refID:      query.RefID,
 				aliasBy:    q.AliasBy,
@@ -500,6 +506,9 @@ func (ds *DataSource) buildQueryExecutors(logger log.Logger, req *backend.QueryD
 				logger:     logger,
 			}
 		case string(dataquery.QueryTypeSLO):
+			if q.SloQuery == nil {
+				return nil, backend.DownstreamError(fmt.Errorf("query %s: missing sloQuery in query model for query type %q", query.RefID, query.QueryType))
+			}
 			cmslo := &cloudMonitoringSLO{
 				refID:      query.RefID,
 				aliasBy:    q.AliasBy,
@@ -509,6 +518,9 @@ func (ds *DataSource) buildQueryExecutors(logger log.Logger, req *backend.QueryD
 			cmslo.setParams(startTime, endTime, durationSeconds, query.Interval.Milliseconds())
 			queryInterface = cmslo
 		case string(dataquery.QueryTypePROMQL):
+			if q.PromQLQuery == nil {
+				return nil, backend.DownstreamError(fmt.Errorf("query %s: missing promQLQuery in query model for query type %q", query.RefID, query.QueryType))
+			}
 			cmp := &cloudMonitoringProm{
 				refID:      query.RefID,
 				aliasBy:    q.AliasBy,
