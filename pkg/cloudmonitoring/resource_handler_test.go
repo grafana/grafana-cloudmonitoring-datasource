@@ -106,13 +106,59 @@ func Test_setRequestVariables(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Unexpected error %v", err)
 	}
-	_, _, err = ds.setRequestVariables(req, cloudMonitor)
+	_, _, err = ds.setRequestVariables(req, cloudMonitor, metricDescriptorsTargetExp)
 	if err != nil {
 		t.Fatalf("Unexpected error %v", err)
 	}
 	expectedURL := "https://monitoring.googleapis.com/v3/projects/bar/metricDescriptors"
 	if req.URL.String() != expectedURL {
 		t.Errorf("Unexpected result URL. Got %s, expecting %s", req.URL.String(), expectedURL)
+	}
+}
+
+func Test_setRequestVariables_rejectsUnexpectedTargetPath(t *testing.T) {
+	ds := DataSource{
+		info: &datasourceInfo{
+			services: map[string]datasourceService{
+				cloudMonitor: {
+					url:    buildURL(cloudMonitor, "googleapis.com"),
+					client: &http.Client{},
+				},
+			},
+		},
+		logger: log.DefaultLogger,
+	}
+	tests := []struct {
+		name string
+		path string
+	}{
+		{
+			"extra path segment appended via project name",
+			"/cloudmonitoring/v3/projects/bar/metricDescriptors/../alertPolicies",
+		},
+		{
+			"different endpoint entirely",
+			"/cloudmonitoring/v3/projects/bar/alertPolicies",
+		},
+		{
+			"project name smuggling an extra segment",
+			"/cloudmonitoring/v3/projects/bar/services/baz/metricDescriptors",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			req, err := http.NewRequest(http.MethodGet, "http://foo"+tt.path, nil)
+			if err != nil {
+				t.Fatalf("Unexpected error %v", err)
+			}
+			_, code, err := ds.setRequestVariables(req, cloudMonitor, metricDescriptorsTargetExp)
+			if err == nil {
+				t.Errorf("expected an error for path %q, got none", tt.path)
+			}
+			if code != http.StatusBadRequest {
+				t.Errorf("expected %d, got %d", http.StatusBadRequest, code)
+			}
+		})
 	}
 }
 
