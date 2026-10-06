@@ -1,6 +1,7 @@
 import type { Configuration } from 'webpack';
 import { merge } from 'webpack-merge';
 import path from 'path';
+import CopyWebpackPlugin from 'copy-webpack-plugin';
 import { SOURCE_DIR } from './.config/bundler/constants';
 import grafanaConfig from './.config/webpack/webpack.config';
 
@@ -42,6 +43,16 @@ const config = async (env): Promise<Configuration> => {
     output: {
       asyncChunks: true,
     },
+    plugins: [
+      new CopyWebpackPlugin({
+        patterns: [
+          { from: '../pkg/schema/dsconfig.json', to: './schema/dsconfig.json' },
+          { from: '../pkg/schema/schema.gen.json', to: './schema/v0alpha1.json' },
+          { from: '../pkg/schema/settings.gen.json', to: './schema/v0alpha1/settings.json' },
+          { from: '../pkg/schema/settings.examples.gen.json', to: './schema/v0alpha1/settings.examples.json' },
+        ],
+      }),
+    ],
   });
 };
 

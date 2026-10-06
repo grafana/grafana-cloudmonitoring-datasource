@@ -200,7 +200,9 @@ type datasourceInfo struct {
 	wifServiceAccountEmail       string
 }
 
-type datasourceJSONData struct {
+// DatasourceJSONData is the typed jsonData of the data source. Its json tags must stay in sync
+// with pkg/schema/dsconfig.json; the conformance test in pkg/schema enforces this.
+type DatasourceJSONData struct {
 	AuthenticationType          string `json:"authenticationType"`
 	DefaultProject              string `json:"defaultProject"`
 	ClientEmail                 string `json:"clientEmail"`
@@ -212,6 +214,9 @@ type datasourceJSONData struct {
 	// Workload Identity Federation fields (read by Grafana Cloud's auth middleware)
 	WorkloadIdentityPoolProvider string `json:"workloadIdentityPoolProvider"`
 	WifServiceAccountEmail       string `json:"wifServiceAccountEmail"`
+	// Not read by this backend directly: grafana-google-sdk-go reads it (utils.GetPrivateKey).
+	// Kept because it is part of the google_sdk_settings pack and the schema test requires a match.
+	PrivateKeyPath string `json:"privateKeyPath"`
 }
 
 type datasourceService struct {
@@ -220,7 +225,7 @@ type datasourceService struct {
 }
 
 func newDatasourceInfo(httpClientProvider httpclient.Provider, ctx context.Context, settings backend.DataSourceInstanceSettings) (*datasourceInfo, error) {
-	var jsonData datasourceJSONData
+	var jsonData DatasourceJSONData
 	err := json.Unmarshal(settings.JSONData, &jsonData)
 	if err != nil {
 		return nil, fmt.Errorf("error reading settings: %w", err)

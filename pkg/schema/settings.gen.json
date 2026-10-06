@@ -1,0 +1,82 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "properties": {
+          "authenticationType": {
+            "description": "How Grafana authenticates to Google APIs. `jwt` uses a Google JWT service account key file; `gce` uses the GCE default service account; `workloadIdentityFederation` (WIF) federates a workload identity; `forwardOAuthIdentity` forwards the signed-in user's OAuth token.",
+            "type": "string",
+            "default": "jwt",
+            "enum": [
+              "jwt",
+              "gce",
+              "workloadIdentityFederation",
+              "forwardOAuthIdentity"
+            ]
+          },
+          "clientEmail": {
+            "description": "Service account email from the JWT key file (the `client_email` field).",
+            "type": "string",
+            "x-dsconfig-depends-on": "google_sdk_settings.authenticationType == 'jwt'",
+            "x-dsconfig-required-when": "google_sdk_settings.authenticationType == 'jwt'"
+          },
+          "defaultProject": {
+            "description": "Google Cloud project ID used for queries when an explicit project is not specified.",
+            "type": "string"
+          },
+          "oauthPassThru": {
+            "description": "Forward the signed-in user's OAuth token to Google APIs. Set automatically by `authenticationType` (true for `forwardOAuthIdentity` and `workloadIdentityFederation`).",
+            "type": "boolean",
+            "default": false
+          },
+          "privateKeyPath": {
+            "description": "Path on the Grafana server to a file containing the JWT private key. Use this instead of pasting the private key inline.",
+            "type": "string",
+            "x-dsconfig-depends-on": "google_sdk_settings.authenticationType == 'jwt'"
+          },
+          "serviceAccountToImpersonate": {
+            "description": "Email of the service account that Grafana should impersonate when `usingImpersonation` is enabled.",
+            "type": "string",
+            "x-dsconfig-depends-on": "google_sdk_settings.usingImpersonation == true",
+            "x-dsconfig-required-when": "google_sdk_settings.usingImpersonation == true"
+          },
+          "tokenUri": {
+            "description": "OAuth 2.0 token endpoint from the JWT key file (the `token_uri` field, typically `https://oauth2.googleapis.com/token`).",
+            "type": "string",
+            "x-dsconfig-depends-on": "google_sdk_settings.authenticationType == 'jwt'",
+            "x-dsconfig-required-when": "google_sdk_settings.authenticationType == 'jwt'"
+          },
+          "universeDomain": {
+            "description": "Optional Google Cloud universe domain (Trusted Partner Cloud / Trusted Cloud by S3NS). Empty string is treated as 'googleapis.com' by the backend (pkg/cloudmonitoring/httpclient.go:79-83). Only rendered in the editor when the Grafana instance has secureSocksDSProxyEnabled set (ConfigEditor.tsx:78) — provisioning can set it regardless of that flag.",
+            "type": "string"
+          },
+          "usingImpersonation": {
+            "description": "When enabled, Grafana impersonates the configured service account when calling Google APIs. See https://cloud.google.com/iam/docs/service-account-impersonation.",
+            "type": "boolean",
+            "default": false,
+            "x-dsconfig-depends-on": "google_sdk_settings.authenticationType != 'forwardOAuthIdentity'"
+          },
+          "wifServiceAccountEmail": {
+            "description": "Optional. If set, the federated identity impersonates this service account when calling Google APIs.",
+            "type": "string",
+            "x-dsconfig-depends-on": "google_sdk_settings.authenticationType == 'workloadIdentityFederation'"
+          },
+          "workloadIdentityPoolProvider": {
+            "description": "Full resource name of the workload identity pool provider (e.g. `projects/123/locations/global/workloadIdentityPools/my-pool/providers/my-provider`).",
+            "type": "string",
+            "x-dsconfig-depends-on": "google_sdk_settings.authenticationType == 'workloadIdentityFederation'",
+            "x-dsconfig-required-when": "google_sdk_settings.authenticationType == 'workloadIdentityFederation'"
+          }
+        }
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "privateKey",
+      "description": "JWT private key (the `private_key` field of the service account key file). Stored in `secureJsonData`."
+    }
+  ]
+}
