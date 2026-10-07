@@ -2,7 +2,7 @@
 
 ## 12.6.3
 
-- Adds datasource configuration schema([#122](https://github.com/grafana/grafana-cloudmonitoring-datasource/pull/122))
+- Adds datasource configuration schema ([#122](https://github.com/grafana/grafana-cloudmonitoring-datasource/pull/122))
 
 ## 12.6.2
 
