@@ -211,6 +211,8 @@ type DatasourceJSONData struct {
 	UsingImpersonation          bool   `json:"usingImpersonation"`
 	ServiceAccountToImpersonate string `json:"serviceAccountToImpersonate"`
 	OAuthPassThru               bool   `json:"oauthPassThru"`
+	// Not read by this backend: Grafana core applies it when building the HTTP client.
+	EnableSecureSocksProxy bool `json:"enableSecureSocksProxy"`
 	// Workload Identity Federation fields (read by Grafana Cloud's auth middleware)
 	WorkloadIdentityPoolProvider string `json:"workloadIdentityPoolProvider"`
 	WifServiceAccountEmail       string `json:"wifServiceAccountEmail"`

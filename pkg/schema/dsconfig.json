@@ -40,6 +40,18 @@
         "component": "input",
         "placeholder": "googleapis.com"
       }
+    },
+    {
+      "id": "jsonData_enableSecureSocksProxy",
+      "key": "enableSecureSocksProxy",
+      "label": "Secure Socks Proxy",
+      "description": "Route requests to this data source through Grafana's Secure Socks Proxy, which backs Private Data source Connect (PDC). Read and applied by Grafana core when it builds the data source HTTP client, not by the plugin backend. Only rendered in the editor when the Grafana instance has secureSocksDSProxyEnabled set (ConfigEditor.tsx:78) — provisioning can set it regardless of that flag.",
+      "valueType": "boolean",
+      "target": "jsonData",
+      "defaultValue": false,
+      "ui": {
+        "component": "switch"
+      }
     }
   ],
   "groups": [
@@ -66,7 +78,7 @@
       "title": "Additional settings",
       "order": 2,
       "optional": true,
-      "fieldRefs": ["jsonData_universeDomain"]
+      "fieldRefs": ["jsonData_universeDomain", "jsonData_enableSecureSocksProxy"]
     }
   ],
   "relationships": [
@@ -119,7 +131,7 @@
       "tags": ["llm", "auth", "secure"]
     },
     {
-      "msg": "Optional connection settings: jsonData.universeDomain overrides the default 'googleapis.com' host suffix — the backend builds every Google URL as 'monitoring.<universeDomain>' / 'cloudresourcemanager.<universeDomain>' (pkg/cloudmonitoring/httpclient.go:79-83). Leave it empty for the standard Google Cloud, set it (for example) to 'googleapis.mtls.google.com' for TLS mutual auth. The editor only surfaces this field when the Grafana instance has secure_socks_datasource_proxy enabled (ConfigEditor.tsx:78), but provisioning payloads may set it anytime. The plugin's legacy id is 'stackdriver' (src/plugin.json:4) — the current product is named Google Cloud Monitoring.",
+      "msg": "Optional connection settings: jsonData.universeDomain overrides the default 'googleapis.com' host suffix — the backend builds every Google URL as 'monitoring.<universeDomain>' / 'cloudresourcemanager.<universeDomain>' (pkg/cloudmonitoring/httpclient.go:79-83). Leave it empty for the standard Google Cloud, set it (for example) to 'googleapis.mtls.google.com' for TLS mutual auth. jsonData.enableSecureSocksProxy (boolean) routes the datasource connection through Grafana's Secure Socks Proxy (Private Data source Connect); it is applied by Grafana core. The editor only surfaces both fields when the Grafana instance has secure_socks_datasource_proxy enabled (ConfigEditor.tsx:78), but provisioning payloads may set it anytime. The plugin's legacy id is 'stackdriver' (src/plugin.json:4) — the current product is named Google Cloud Monitoring.",
       "tags": ["llm", "settings"]
     }
   ]

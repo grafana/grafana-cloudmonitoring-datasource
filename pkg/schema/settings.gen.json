@@ -26,6 +26,11 @@
             "description": "Google Cloud project ID used for queries when an explicit project is not specified.",
             "type": "string"
           },
+          "enableSecureSocksProxy": {
+            "description": "Route requests to this data source through Grafana's Secure Socks Proxy, which backs Private Data source Connect (PDC). Read and applied by Grafana core when it builds the data source HTTP client, not by the plugin backend. Only rendered in the editor when the Grafana instance has secureSocksDSProxyEnabled set (ConfigEditor.tsx:78) — provisioning can set it regardless of that flag.",
+            "type": "boolean",
+            "default": false
+          },
           "oauthPassThru": {
             "description": "Forward the signed-in user's OAuth token to Google APIs. Set automatically by `authenticationType` (true for `forwardOAuthIdentity` and `workloadIdentityFederation`).",
             "type": "boolean",
