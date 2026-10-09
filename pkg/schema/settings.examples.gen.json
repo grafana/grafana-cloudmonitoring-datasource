@@ -119,7 +119,7 @@
         "spec": {
           "jsonData": {
             "authenticationType": "gce",
-            "universeDomain": "googleapis.mtls.google.com"
+            "universeDomain": "s3nsapis.fr"
           }
         }
       }

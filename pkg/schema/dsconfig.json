@@ -14,7 +14,7 @@
       "id": "virtual_jwtUpload",
       "key": "jwtUpload",
       "label": "JWT token",
-      "description": "Upload or paste a Google service-account JWT key file (.json). Its project_id, client_email, token_uri, and private_key are distributed into the JWT fields below. Mirrors the legacy JWTConfig 'Upload or paste Google JWT token' control (ConfigEditor.tsx JWT Key Details).",
+      "description": "Upload or paste a Google service-account JWT key file (.json). Its project_id, client_email, token_uri, and private_key are distributed into the JWT fields below. Mirrors the legacy 'Upload or paste Google JWT token' control in the editor.",
       "valueType": "string",
       "kind": "virtual",
       "dependsOn": "google_sdk_settings.authenticationType == 'jwt'",
@@ -33,7 +33,7 @@
       "id": "jsonData_universeDomain",
       "key": "universeDomain",
       "label": "Universe Domain",
-      "description": "Optional Google Cloud universe domain (Trusted Partner Cloud / Trusted Cloud by S3NS). The backend builds every Google URL as 'monitoring.<universeDomain>' / 'cloudresourcemanager.<universeDomain>'; leave it empty for the standard 'googleapis.com'. Only rendered in the editor when the Grafana instance has secureSocksDSProxyEnabled set (ConfigEditor.tsx:78) — provisioning can set it regardless of that flag.",
+      "description": "Optional Google Cloud universe domain (Trusted Partner Cloud / Trusted Cloud by S3NS). The backend builds every Google URL as 'monitoring.<universeDomain>' / 'cloudresourcemanager.<universeDomain>'; leave it empty for the standard 'googleapis.com'. Only rendered in the editor when the Grafana instance has secureSocksDSProxyEnabled set — provisioning can set it regardless of that flag.",
       "valueType": "string",
       "target": "jsonData",
       "ui": {
@@ -45,7 +45,7 @@
       "id": "jsonData_enableSecureSocksProxy",
       "key": "enableSecureSocksProxy",
       "label": "Secure Socks Proxy",
-      "description": "Route requests to this data source through Grafana's Secure Socks Proxy, which backs Private Data source Connect (PDC). Read and applied by Grafana core when it builds the data source HTTP client, not by the plugin backend. Only rendered in the editor when the Grafana instance has secureSocksDSProxyEnabled set (ConfigEditor.tsx:78) — provisioning can set it regardless of that flag.",
+      "description": "Route requests to this data source through Grafana's Secure Socks Proxy, which backs Private Data source Connect (PDC). Read and applied by Grafana core when it builds the data source HTTP client, not by the plugin backend. Only rendered in the editor when the Grafana instance has secureSocksDSProxyEnabled set — provisioning can set it regardless of that flag.",
       "valueType": "boolean",
       "target": "jsonData",
       "defaultValue": false,
@@ -96,22 +96,22 @@
     {
       "type": "group",
       "fields": ["google_sdk_settings.privateKeyPath", "google_sdk_settings.privateKey"],
-      "description": "Alternative sources for the JWT private key: either supply the key inline as a secret (privateKey) or point at a file path on the Grafana server (privateKeyPath). Exactly one of the two must be configured for jwt auth; privateKeyPath takes precedence when both are set. privateKeyPath reads from the local filesystem of the machine running Grafana, so it is only usable on self-hosted Grafana (not Grafana Cloud). The file must contain only the PEM private key (the value of the `private_key` field, starting with '-----BEGIN PRIVATE KEY-----'), not the complete service account JSON key file, which is read verbatim and not parsed (grafana-google-sdk-go/pkg/utils/utils.go)."
+      "description": "Alternative sources for the JWT private key: either supply the key inline as a secret (privateKey) or point at a file path on the Grafana server (privateKeyPath). Exactly one of the two must be configured for jwt auth; privateKeyPath takes precedence when both are set. privateKeyPath reads from the local filesystem of the machine running Grafana, so it is only usable on self-hosted Grafana (not Grafana Cloud). The file must contain only the PEM private key (the value of the `private_key` field, starting with '-----BEGIN PRIVATE KEY-----'), not the complete service account JSON key file, which is read verbatim and not parsed."
     },
     {
       "type": "group",
       "fields": ["google_sdk_settings.usingImpersonation", "google_sdk_settings.serviceAccountToImpersonate"],
-      "description": "Service account impersonation: setting serviceAccountToImpersonate is only effective when usingImpersonation is true (pkg/cloudmonitoring/httpclient.go:54-73)"
+      "description": "Service account impersonation: setting serviceAccountToImpersonate is only effective when usingImpersonation is true"
     },
     {
       "type": "group",
       "fields": ["google_sdk_settings.workloadIdentityPoolProvider", "google_sdk_settings.wifServiceAccountEmail"],
-      "description": "Workload Identity Federation credentials — workloadIdentityPoolProvider is required for WIF auth (pkg/cloudmonitoring/httpclient.go:87-89); wifServiceAccountEmail is optional impersonation"
+      "description": "Workload Identity Federation credentials — workloadIdentityPoolProvider is required for WIF auth; wifServiceAccountEmail is optional impersonation"
     }
   ],
   "instructions": [
     {
-      "msg": "Four authentication methods are available, selected via jsonData.authenticationType: 'jwt' (Google JWT File, the default), 'gce' (GCE Default Service Account, only works when Grafana runs on a Google Compute Engine VM; defaultProject may be omitted and is resolved from the metadata server), 'workloadIdentityFederation' (only visible in Grafana Cloud, but the backend accepts it anywhere; requires workloadIdentityPoolProvider), and 'forwardOAuthIdentity' (forward the caller's OAuth token to Cloud Monitoring). Configure exactly one method; the backend switches on this discriminator (pkg/cloudmonitoring/httpclient.go) and only the credentials of the selected method are used. 'workloadIdentityFederation' and 'forwardOAuthIdentity' also require defaultProject, since a project can't be inferred from forwarded tokens, and neither supports alerting queries. Whichever method is used, the identity needs the 'Monitoring Viewer' role on the project and the Cloud Monitoring API must be enabled.",
+      "msg": "Four authentication methods are available, selected via jsonData.authenticationType: 'jwt' (Google JWT File, the default), 'gce' (GCE Default Service Account, only works when Grafana runs on a Google Compute Engine VM; defaultProject may be omitted and is resolved from the metadata server), 'workloadIdentityFederation' (only visible in Grafana Cloud, but the backend accepts it anywhere; requires workloadIdentityPoolProvider), and 'forwardOAuthIdentity' (forward the caller's OAuth token to Cloud Monitoring). Configure exactly one method; the backend switches on this discriminator and only the credentials of the selected method are used. 'workloadIdentityFederation' and 'forwardOAuthIdentity' also require defaultProject, since a project can't be inferred from forwarded tokens, and neither supports alerting queries. Whichever method is used, the identity needs the 'Monitoring Viewer' role on the project and the Cloud Monitoring API must be enabled.",
       "tags": ["llm", "auth"]
     }
   ]

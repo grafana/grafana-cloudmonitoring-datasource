@@ -29,7 +29,7 @@
               "type": "string"
             },
             "enableSecureSocksProxy": {
-              "description": "Route requests to this data source through Grafana's Secure Socks Proxy, which backs Private Data source Connect (PDC). Read and applied by Grafana core when it builds the data source HTTP client, not by the plugin backend. Only rendered in the editor when the Grafana instance has secureSocksDSProxyEnabled set (ConfigEditor.tsx:78) — provisioning can set it regardless of that flag.",
+              "description": "Route requests to this data source through Grafana's Secure Socks Proxy, which backs Private Data source Connect (PDC). Read and applied by Grafana core when it builds the data source HTTP client, not by the plugin backend. Only rendered in the editor when the Grafana instance has secureSocksDSProxyEnabled set — provisioning can set it regardless of that flag.",
               "type": "boolean",
               "default": false
             },
@@ -56,7 +56,7 @@
               "x-dsconfig-required-when": "google_sdk_settings.authenticationType == 'jwt'"
             },
             "universeDomain": {
-              "description": "Optional Google Cloud universe domain (Trusted Partner Cloud / Trusted Cloud by S3NS). The backend builds every Google URL as 'monitoring.\u003cuniverseDomain\u003e' / 'cloudresourcemanager.\u003cuniverseDomain\u003e'; leave it empty for the standard 'googleapis.com'. Only rendered in the editor when the Grafana instance has secureSocksDSProxyEnabled set (ConfigEditor.tsx:78) — provisioning can set it regardless of that flag.",
+              "description": "Optional Google Cloud universe domain (Trusted Partner Cloud / Trusted Cloud by S3NS). The backend builds every Google URL as 'monitoring.\u003cuniverseDomain\u003e' / 'cloudresourcemanager.\u003cuniverseDomain\u003e'; leave it empty for the standard 'googleapis.com'. Only rendered in the editor when the Grafana instance has secureSocksDSProxyEnabled set — provisioning can set it regardless of that flag.",
               "type": "string"
             },
             "usingImpersonation": {
@@ -208,7 +208,7 @@
           "spec": {
             "jsonData": {
               "authenticationType": "gce",
-              "universeDomain": "googleapis.mtls.google.com"
+              "universeDomain": "s3nsapis.fr"
             }
           }
         }

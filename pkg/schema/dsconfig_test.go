@@ -100,7 +100,7 @@ func TestPlugin(t *testing.T) {
 					"A non-default Google Cloud universe. The editor only shows this setting when the Grafana instance has the secure socks proxy enabled; provisioning can always set it.",
 					map[string]any{
 						"authenticationType": "gce",
-						"universeDomain":     "googleapis.mtls.google.com",
+						"universeDomain":     "s3nsapis.fr",
 					}, nil),
 				"secureSocksProxy": example(
 					"Secure Socks Proxy",
