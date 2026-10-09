@@ -56,7 +56,7 @@
               "x-dsconfig-required-when": "google_sdk_settings.authenticationType == 'jwt'"
             },
             "universeDomain": {
-              "description": "Optional Google Cloud universe domain (Trusted Partner Cloud / Trusted Cloud by S3NS). Empty string is treated as 'googleapis.com' by the backend (pkg/cloudmonitoring/httpclient.go:79-83). Only rendered in the editor when the Grafana instance has secureSocksDSProxyEnabled set (ConfigEditor.tsx:78) — provisioning can set it regardless of that flag.",
+              "description": "Optional Google Cloud universe domain (Trusted Partner Cloud / Trusted Cloud by S3NS). The backend builds every Google URL as 'monitoring.\u003cuniverseDomain\u003e' / 'cloudresourcemanager.\u003cuniverseDomain\u003e'; leave it empty for the standard 'googleapis.com'. Only rendered in the editor when the Grafana instance has secureSocksDSProxyEnabled set (ConfigEditor.tsx:78) — provisioning can set it regardless of that flag.",
               "type": "string"
             },
             "usingImpersonation": {
@@ -167,7 +167,7 @@
       },
       "jwtKeyFile": {
         "summary": "Google JWT File with private key on disk",
-        "description": "Service account authentication where the private key is read from a file on the Grafana server instead of being stored as a secret. privateKeyPath takes precedence over secure.privateKey when both are set.",
+        "description": "Service account authentication where the private key is read from a file on the Grafana server instead of being stored as a secret. Self-hosted Grafana only. The file must contain just the PEM private key (the `private_key` value), not the full service account JSON. privateKeyPath takes precedence over secure.privateKey when both are set.",
         "value": {
           "metadata": {
             "name": "my-datasource"

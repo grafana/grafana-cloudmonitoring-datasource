@@ -50,7 +50,7 @@ func TestPlugin(t *testing.T) {
 					}),
 				"jwtKeyFile": example(
 					"Google JWT File with private key on disk",
-					"Service account authentication where the private key is read from a file on the Grafana server instead of being stored as a secret. privateKeyPath takes precedence over secure.privateKey when both are set.",
+					"Service account authentication where the private key is read from a file on the Grafana server instead of being stored as a secret. Self-hosted Grafana only. The file must contain just the PEM private key (the `private_key` value), not the full service account JSON. privateKeyPath takes precedence over secure.privateKey when both are set.",
 					map[string]any{
 						"authenticationType": "jwt",
 						"defaultProject":     "my-gcp-project",

@@ -78,7 +78,7 @@
     },
     "jwtKeyFile": {
       "summary": "Google JWT File with private key on disk",
-      "description": "Service account authentication where the private key is read from a file on the Grafana server instead of being stored as a secret. privateKeyPath takes precedence over secure.privateKey when both are set.",
+      "description": "Service account authentication where the private key is read from a file on the Grafana server instead of being stored as a secret. Self-hosted Grafana only. The file must contain just the PEM private key (the `private_key` value), not the full service account JSON. privateKeyPath takes precedence over secure.privateKey when both are set.",
       "value": {
         "metadata": {
           "name": "my-datasource"

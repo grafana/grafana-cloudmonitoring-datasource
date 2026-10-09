@@ -54,7 +54,7 @@
             "x-dsconfig-required-when": "google_sdk_settings.authenticationType == 'jwt'"
           },
           "universeDomain": {
-            "description": "Optional Google Cloud universe domain (Trusted Partner Cloud / Trusted Cloud by S3NS). Empty string is treated as 'googleapis.com' by the backend (pkg/cloudmonitoring/httpclient.go:79-83). Only rendered in the editor when the Grafana instance has secureSocksDSProxyEnabled set (ConfigEditor.tsx:78) — provisioning can set it regardless of that flag.",
+            "description": "Optional Google Cloud universe domain (Trusted Partner Cloud / Trusted Cloud by S3NS). The backend builds every Google URL as 'monitoring.\u003cuniverseDomain\u003e' / 'cloudresourcemanager.\u003cuniverseDomain\u003e'; leave it empty for the standard 'googleapis.com'. Only rendered in the editor when the Grafana instance has secureSocksDSProxyEnabled set (ConfigEditor.tsx:78) — provisioning can set it regardless of that flag.",
             "type": "string"
           },
           "usingImpersonation": {
