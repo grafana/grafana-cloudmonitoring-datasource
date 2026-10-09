@@ -1,0 +1,236 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object",
+      "properties": {
+        "jsonData": {
+          "type": "object",
+          "properties": {
+            "authenticationType": {
+              "description": "How Grafana authenticates to Google APIs. `jwt` uses a Google JWT service account key file; `gce` uses the GCE default service account; `workloadIdentityFederation` (WIF) federates a workload identity; `forwardOAuthIdentity` forwards the signed-in user's OAuth token.",
+              "type": "string",
+              "default": "jwt",
+              "enum": [
+                "jwt",
+                "gce",
+                "workloadIdentityFederation",
+                "forwardOAuthIdentity"
+              ]
+            },
+            "clientEmail": {
+              "description": "Service account email from the JWT key file (the `client_email` field).",
+              "type": "string",
+              "x-dsconfig-depends-on": "google_sdk_settings.authenticationType == 'jwt'",
+              "x-dsconfig-required-when": "google_sdk_settings.authenticationType == 'jwt'"
+            },
+            "defaultProject": {
+              "description": "Google Cloud project ID used for queries when an explicit project is not specified.",
+              "type": "string"
+            },
+            "enableSecureSocksProxy": {
+              "description": "Route requests to this data source through Grafana's Secure Socks Proxy, which backs Private Data source Connect (PDC). Read and applied by Grafana core when it builds the data source HTTP client, not by the plugin backend. Only rendered in the editor when the Grafana instance has secureSocksDSProxyEnabled set — provisioning can set it regardless of that flag.",
+              "type": "boolean",
+              "default": false
+            },
+            "oauthPassThru": {
+              "description": "Forward the signed-in user's OAuth token to Google APIs. Set automatically by `authenticationType` (true for `forwardOAuthIdentity` and `workloadIdentityFederation`).",
+              "type": "boolean",
+              "default": false
+            },
+            "privateKeyPath": {
+              "description": "Path on the Grafana server to a file containing the JWT private key. Use this instead of pasting the private key inline.",
+              "type": "string",
+              "x-dsconfig-depends-on": "google_sdk_settings.authenticationType == 'jwt'"
+            },
+            "serviceAccountToImpersonate": {
+              "description": "Email of the service account that Grafana should impersonate when `usingImpersonation` is enabled.",
+              "type": "string",
+              "x-dsconfig-depends-on": "google_sdk_settings.usingImpersonation == true",
+              "x-dsconfig-required-when": "google_sdk_settings.usingImpersonation == true"
+            },
+            "tokenUri": {
+              "description": "OAuth 2.0 token endpoint from the JWT key file (the `token_uri` field, typically `https://oauth2.googleapis.com/token`).",
+              "type": "string",
+              "x-dsconfig-depends-on": "google_sdk_settings.authenticationType == 'jwt'",
+              "x-dsconfig-required-when": "google_sdk_settings.authenticationType == 'jwt'"
+            },
+            "universeDomain": {
+              "description": "Optional Google Cloud universe domain (Trusted Partner Cloud / Trusted Cloud by S3NS). The backend builds every Google URL as 'monitoring.\u003cuniverseDomain\u003e' / 'cloudresourcemanager.\u003cuniverseDomain\u003e'; leave it empty for the standard 'googleapis.com'. Only rendered in the editor when the Grafana instance has secureSocksDSProxyEnabled set — provisioning can set it regardless of that flag.",
+              "type": "string"
+            },
+            "usingImpersonation": {
+              "description": "When enabled, Grafana impersonates the configured service account when calling Google APIs. See https://cloud.google.com/iam/docs/service-account-impersonation.",
+              "type": "boolean",
+              "default": false,
+              "x-dsconfig-depends-on": "google_sdk_settings.authenticationType != 'forwardOAuthIdentity'"
+            },
+            "wifServiceAccountEmail": {
+              "description": "Optional. If set, the federated identity impersonates this service account when calling Google APIs.",
+              "type": "string",
+              "x-dsconfig-depends-on": "google_sdk_settings.authenticationType == 'workloadIdentityFederation'"
+            },
+            "workloadIdentityPoolProvider": {
+              "description": "Full resource name of the workload identity pool provider (e.g. `projects/123/locations/global/workloadIdentityPools/my-pool/providers/my-provider`).",
+              "type": "string",
+              "x-dsconfig-depends-on": "google_sdk_settings.authenticationType == 'workloadIdentityFederation'",
+              "x-dsconfig-required-when": "google_sdk_settings.authenticationType == 'workloadIdentityFederation'"
+            }
+          }
+        }
+      }
+    },
+    "secureValues": [
+      {
+        "key": "privateKey",
+        "description": "JWT private key (the `private_key` field of the service account key file). Stored in `secureJsonData`."
+      }
+    ]
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "The defaults a new datasource starts with: Google JWT File authentication. The service account details and private key must be filled in to get a working datasource.",
+        "value": {
+          "metadata": {
+            "name": "my-datasource"
+          },
+          "secure": {
+            "privateKey": {
+              "create": "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+            }
+          },
+          "spec": {
+            "jsonData": {
+              "authenticationType": "jwt",
+              "clientEmail": "grafana@my-gcp-project.iam.gserviceaccount.com",
+              "defaultProject": "my-gcp-project",
+              "tokenUri": "https://oauth2.googleapis.com/token"
+            }
+          }
+        }
+      },
+      "forwardOAuthIdentity": {
+        "summary": "Forward OAuth Identity",
+        "description": "Forward the signed-in Grafana user's Google OAuth token to Cloud Monitoring. defaultProject is required. Alerting is not supported with this method.",
+        "value": {
+          "metadata": {
+            "name": "my-datasource"
+          },
+          "spec": {
+            "jsonData": {
+              "authenticationType": "forwardOAuthIdentity",
+              "defaultProject": "my-gcp-project",
+              "oauthPassThru": true
+            }
+          }
+        }
+      },
+      "gce": {
+        "summary": "GCE Default Service Account",
+        "description": "Use the default service account of the Google Compute Engine VM Grafana runs on. Only works on GCE. defaultProject may be omitted; it is resolved from the metadata server.",
+        "value": {
+          "metadata": {
+            "name": "my-datasource"
+          },
+          "spec": {
+            "jsonData": {
+              "authenticationType": "gce"
+            }
+          }
+        }
+      },
+      "jwtImpersonation": {
+        "summary": "Google JWT File with service account impersonation",
+        "description": "Authenticate with a JWT key file, then impersonate another service account. serviceAccountToImpersonate only takes effect when usingImpersonation is true.",
+        "value": {
+          "metadata": {
+            "name": "my-datasource"
+          },
+          "secure": {
+            "privateKey": {
+              "create": "REPLACE_WITH_PRIVATE_KEY"
+            }
+          },
+          "spec": {
+            "jsonData": {
+              "authenticationType": "jwt",
+              "clientEmail": "grafana@my-gcp-project.iam.gserviceaccount.com",
+              "defaultProject": "my-gcp-project",
+              "serviceAccountToImpersonate": "monitoring-viewer@my-gcp-project.iam.gserviceaccount.com",
+              "tokenUri": "https://oauth2.googleapis.com/token",
+              "usingImpersonation": true
+            }
+          }
+        }
+      },
+      "jwtKeyFile": {
+        "summary": "Google JWT File with private key on disk",
+        "description": "Service account authentication where the private key is read from a file on the Grafana server instead of being stored as a secret. Self-hosted Grafana only. The file must contain just the PEM private key (the `private_key` value), not the full service account JSON. privateKeyPath takes precedence over secure.privateKey when both are set.",
+        "value": {
+          "metadata": {
+            "name": "my-datasource"
+          },
+          "spec": {
+            "jsonData": {
+              "authenticationType": "jwt",
+              "clientEmail": "grafana@my-gcp-project.iam.gserviceaccount.com",
+              "defaultProject": "my-gcp-project",
+              "privateKeyPath": "/etc/grafana/secrets/gcp-key.json",
+              "tokenUri": "https://oauth2.googleapis.com/token"
+            }
+          }
+        }
+      },
+      "secureSocksProxy": {
+        "summary": "Secure Socks Proxy",
+        "description": "Route the datasource connection through Grafana's Secure Socks Proxy (Private Data source Connect). The editor only shows this setting when the Grafana instance has the proxy enabled; provisioning can always set it.",
+        "value": {
+          "metadata": {
+            "name": "my-datasource"
+          },
+          "spec": {
+            "jsonData": {
+              "authenticationType": "gce",
+              "enableSecureSocksProxy": true
+            }
+          }
+        }
+      },
+      "universeDomain": {
+        "summary": "Custom universe domain",
+        "description": "A non-default Google Cloud universe. The editor only shows this setting when the Grafana instance has the secure socks proxy enabled; provisioning can always set it.",
+        "value": {
+          "metadata": {
+            "name": "my-datasource"
+          },
+          "spec": {
+            "jsonData": {
+              "authenticationType": "gce",
+              "universeDomain": "s3nsapis.fr"
+            }
+          }
+        }
+      },
+      "workloadIdentityFederation": {
+        "summary": "Workload Identity Federation",
+        "description": "Federated identity authentication (Grafana Cloud). workloadIdentityPoolProvider is required; wifServiceAccountEmail optionally impersonates a service account. oauthPassThru is set by the editor when this method is chosen.",
+        "value": {
+          "metadata": {
+            "name": "my-datasource"
+          },
+          "spec": {
+            "jsonData": {
+              "authenticationType": "workloadIdentityFederation",
+              "defaultProject": "my-gcp-project",
+              "oauthPassThru": true,
+              "wifServiceAccountEmail": "monitoring-viewer@my-gcp-project.iam.gserviceaccount.com",
+              "workloadIdentityPoolProvider": "projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider"
+            }
+          }
+        }
+      }
+    }
+  }
+}

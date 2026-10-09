@@ -1,5 +1,9 @@
 # Changelog
 
+## 12.6.3
+
+- Adds datasource configuration schema ([#122](https://github.com/grafana/grafana-cloudmonitoring-datasource/pull/122))
+
 ## 12.6.2
 
 - Bump go v1.26.7 and grafana-plugin-sdk-go v0.296.4 ([#109](https://github.com/grafana/grafana-cloudmonitoring-datasource/pull/109))
