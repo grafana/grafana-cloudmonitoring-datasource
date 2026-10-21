@@ -1,5 +1,10 @@
 # Changelog
 
+## 12.6.4
+
+- Update Go to 1.27.3 ([#125](https://github.com/grafana/grafana-cloudmonitoring-datasource/pull/125))
+- Fix security vulnerabilities ([#124](https://github.com/grafana/grafana-cloudmonitoring-datasource/pull/124))
+
 ## 12.6.3
 
 - Adds datasource configuration schema ([#122](https://github.com/grafana/grafana-cloudmonitoring-datasource/pull/122))
