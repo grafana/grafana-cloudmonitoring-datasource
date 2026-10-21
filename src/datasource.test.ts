@@ -394,6 +394,31 @@ describe('Cloud Monitoring Datasource', () => {
     );
   });
 
+  describe('getDefaultProject', () => {
+    it('should prefer the configured default project for gce authentication', () => {
+      const mockInstanceSettings = createMockInstanceSetttings({
+        jsonData: {
+          authenticationType: 'gce',
+          defaultProject: 'configured-project',
+          gceDefaultProject: 'gce-metadata-project',
+        },
+      });
+      const ds = new Datasource(mockInstanceSettings);
+      expect(ds.getDefaultProject()).toBe('configured-project');
+    });
+
+    it('should fall back to the gce default project when none is configured', () => {
+      const mockInstanceSettings = createMockInstanceSetttings({
+        jsonData: {
+          authenticationType: 'gce',
+          gceDefaultProject: 'gce-metadata-project',
+        },
+      });
+      const ds = new Datasource(mockInstanceSettings);
+      expect(ds.getDefaultProject()).toBe('gce-metadata-project');
+    });
+  });
+
   describe('getLabels', () => {
     beforeEach(() => {
       getTempVars = () => [] as CustomVariableModel[];
