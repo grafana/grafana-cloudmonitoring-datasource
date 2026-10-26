@@ -1,5 +1,9 @@
 # Changelog
 
+## 12.6.5
+
+- Bump backend dependency
+
 ## 12.6.4
 
 - Update Go to 1.27.3 ([#125](https://github.com/grafana/grafana-cloudmonitoring-datasource/pull/125))
