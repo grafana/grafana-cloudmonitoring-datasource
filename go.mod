@@ -6,7 +6,7 @@ require (
 	github.com/andybalholm/brotli v1.2.7
 	github.com/grafana/dsconfig/schema v0.0.13
 	github.com/grafana/grafana-google-sdk-go v0.4.2
-	github.com/grafana/grafana-plugin-sdk-go v0.297.0
+	github.com/grafana/grafana-plugin-sdk-go v0.298.0
 	github.com/huandu/xstrings v1.6.3
 	github.com/json-iterator/go v1.1.12
 	github.com/magefile/mage v1.17.2
@@ -103,7 +103,7 @@ require (
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
 	golang.org/x/crypto v0.58.0 // indirect
 	golang.org/x/exp v0.0.0-20261014143641-f0251eb4aa3e // indirect
-	golang.org/x/net v0.61.0 // indirect
+	golang.org/x/net v0.62.0 // indirect
 	golang.org/x/oauth2 v0.37.0 // indirect
 	golang.org/x/sys v0.49.0 // indirect
 	golang.org/x/text v0.43.0 // indirect
