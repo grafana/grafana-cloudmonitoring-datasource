@@ -1,7 +1,7 @@
 import { get } from 'lodash';
 import { lastValueFrom, of } from 'rxjs';
 
-import { type CustomVariableModel, type ScopedVars } from '@grafana/data';
+import { dateTime, type CustomVariableModel, type ScopedVars } from '@grafana/data';
 import { getTemplateSrv } from '@grafana/runtime';
 
 import { PreprocessorType, QueryType, MetricKind } from './dataquery';
@@ -423,6 +423,31 @@ describe('Cloud Monitoring Datasource', () => {
                 },
               }),
             ]),
+          }),
+        })
+      );
+    });
+
+    it('should send the provided time range instead of the default 6 hours', async () => {
+      replace = (target?: string) => target || '';
+      const mockInstanceSettings = createMockInstanceSetttings();
+      const ds = new Datasource(mockInstanceSettings);
+      ds.backendSrv = {
+        ...ds.backendSrv,
+        fetch: jest.fn().mockReturnValue(of({ data: { results: {} } })),
+      };
+      const from = dateTime('2026-01-01T00:00:00.000Z');
+      const to = dateTime('2026-01-08T00:00:00.000Z');
+      await ds.getLabels('gce_instance', 'A', 'my-project', undefined, {
+        from,
+        to,
+        raw: { from: 'now-7d', to: 'now' },
+      });
+      expect(ds.backendSrv.fetch).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            from: from.valueOf().toString(),
+            to: to.valueOf().toString(),
           }),
         })
       );

@@ -1,5 +1,7 @@
 import { isString } from 'lodash';
 
+import { type TimeRange } from '@grafana/data';
+
 import { ALIGNMENT_PERIODS, SELECTORS } from './constants';
 import { MetricFindQueryTypes, type ValueTypes } from './dataquery';
 import type CloudMonitoringDatasource from './datasource';
@@ -15,7 +17,7 @@ import { type CloudMonitoringVariableQuery, type MetricDescriptor } from './type
 export default class CloudMonitoringMetricFindQuery {
   constructor(private datasource: CloudMonitoringDatasource) {}
 
-  async execute(query: CloudMonitoringVariableQuery) {
+  async execute(query: CloudMonitoringVariableQuery, timeRange?: TimeRange) {
     try {
       if (!query.projectName) {
         query.projectName = this.datasource.getDefaultProject();
@@ -31,7 +33,7 @@ export default class CloudMonitoringMetricFindQuery {
         case MetricFindQueryTypes.LabelKeys:
           return this.handleLabelKeysQuery(query);
         case MetricFindQueryTypes.LabelValues:
-          return this.handleLabelValuesQuery(query);
+          return this.handleLabelValuesQuery(query, timeRange);
         case MetricFindQueryTypes.ResourceTypes:
           return this.handleResourceTypeQuery(query);
         case MetricFindQueryTypes.Aligners:
@@ -96,16 +98,25 @@ export default class CloudMonitoringMetricFindQuery {
     return labelKeys.map(this.toFindQueryResult);
   }
 
-  async handleLabelValuesQuery({ selectedMetricType, labelKey, projectName }: CloudMonitoringVariableQuery) {
+  async handleLabelValuesQuery(
+    { selectedMetricType, labelKey, projectName }: CloudMonitoringVariableQuery,
+    timeRange?: TimeRange
+  ) {
     if (!selectedMetricType) {
       return [];
     }
     const refId = 'handleLabelValuesQuery';
     // REDUCE_MEAN is needed so the groupBy is not ignored
-    const labels = await this.datasource.getLabels(selectedMetricType, refId, projectName, {
-      groupBys: [labelKey],
-      crossSeriesReducer: 'REDUCE_MEAN',
-    });
+    const labels = await this.datasource.getLabels(
+      selectedMetricType,
+      refId,
+      projectName,
+      {
+        groupBys: [labelKey],
+        crossSeriesReducer: 'REDUCE_MEAN',
+      },
+      timeRange
+    );
     const interpolatedKey = this.datasource.templateSrv.replace(labelKey);
     const values = labels.hasOwnProperty(interpolatedKey) ? labels[interpolatedKey] : [];
     return values.map(this.toFindQueryResult);
