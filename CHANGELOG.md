@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Fix SQL Expressions rejecting Time Series List and SLO results by declaring the `timeseries-multi` frame type
+- Fix SQL Expressions rejecting Time Series List and SLO results by declaring the `timeseries-multi` frame type ([#137](https://github.com/grafana/grafana-cloudmonitoring-datasource/pull/137))
 
 ## 12.6.7
 
