@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+- Fix a connection freeze between Grafana and the plugin under heavy query load by updating google.golang.org/grpc to v1.85.0 ([grpc/grpc-go#9330](https://github.com/grpc/grpc-go/issues/9330))
+
+## 12.6.5
+
+- Bump backend dependency
+
+## 12.6.4
+
+- Update Go to 1.27.3 ([#125](https://github.com/grafana/grafana-cloudmonitoring-datasource/pull/125))
+- Fix security vulnerabilities ([#124](https://github.com/grafana/grafana-cloudmonitoring-datasource/pull/124))
+
 ## 12.6.3
 
 - Adds datasource configuration schema ([#122](https://github.com/grafana/grafana-cloudmonitoring-datasource/pull/122))
