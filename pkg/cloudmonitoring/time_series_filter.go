@@ -29,6 +29,7 @@ func parseTimeSeriesResponse(queryRes *backend.DataResponse,
 		frame := data.NewFrameOfFieldTypes("", len(series.Points), data.FieldTypeTime, data.FieldTypeFloat64)
 		frame.RefID = query.getRefID()
 		frame.Meta = &data.FrameMeta{
+			Type:                data.FrameTypeTimeSeriesMulti,
 			ExecutedQueryString: executedQueryString,
 			Custom: map[string]any{
 				"alignmentPeriod":  params.Get("aggregation.alignmentPeriod"),

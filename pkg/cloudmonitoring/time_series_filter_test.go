@@ -89,6 +89,7 @@ func TestTimeSeriesFilter(t *testing.T) {
 		query := &cloudMonitoringTimeSeriesList{params: url.Values{}, parameters: &dataquery.TimeSeriesList{}}
 		err = query.parseResponse(res, data, "", ds.logger)
 		require.NoError(t, err)
+		assert.Equal(t, gdata.FrameTypeTimeSeriesMulti, res.Frames[0].Meta.Type)
 
 		field := res.Frames[0].Fields[1]
 		assert.Equal(t, 3, field.Len())
@@ -460,6 +461,7 @@ func TestTimeSeriesFilter(t *testing.T) {
 
 			require.NotNil(t, res.Frames[0].Meta)
 			assert.Equal(t, gdata.FrameMeta{
+				Type:                gdata.FrameTypeTimeSeriesMulti,
 				ExecutedQueryString: "test_query",
 				Custom: map[string]any{
 					"groupBys":        []string{"test_group_by"},
@@ -483,6 +485,7 @@ func TestTimeSeriesFilter(t *testing.T) {
 
 			require.NotNil(t, res.Frames[0].Meta)
 			assert.Equal(t, gdata.FrameMeta{
+				Type:                gdata.FrameTypeTimeSeriesMulti,
 				ExecutedQueryString: "test_query",
 				Custom: map[string]any{
 					"groupBys":        []string{"test_group_by"},
@@ -506,6 +509,7 @@ func TestTimeSeriesFilter(t *testing.T) {
 
 			require.NotNil(t, res.Frames[0].Meta)
 			assert.Equal(t, gdata.FrameMeta{
+				Type:                gdata.FrameTypeTimeSeriesMulti,
 				ExecutedQueryString: "test_query",
 				Custom: map[string]any{
 					"groupBys":        []string{"test_group_by"},
