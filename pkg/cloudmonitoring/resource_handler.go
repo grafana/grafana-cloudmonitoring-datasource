@@ -23,15 +23,25 @@ var nameExp = regexp.MustCompile(`([^\/]*)\/*$`)
 
 const resourceManagerPath = "/v1/projects"
 
+// projectSegExp matches a single path segment (no embedded '/') so a target
+// can't smuggle in extra path segments to reach a different upstream API endpoint.
+const projectSegExp = `[^/]+`
+
+var (
+	metricDescriptorsTargetExp = regexp.MustCompile(`^/v3/projects/` + projectSegExp + `/metricDescriptors$`)
+	servicesTargetExp          = regexp.MustCompile(`^/v3/projects/` + projectSegExp + `/services$`)
+	sloTargetExp               = regexp.MustCompile(`^/v3/projects/` + projectSegExp + `/services/` + projectSegExp + `/serviceLevelObjectives$`)
+)
+
 type processResponse func(body []byte) ([]json.RawMessage, string, error)
 
 func (ds *DataSource) newResourceMux() *http.ServeMux {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/gceDefaultProject", ds.getGCEDefaultProject)
-	mux.HandleFunc("/metricDescriptors/", ds.handleResourceReq(cloudMonitor, processMetricDescriptors))
-	mux.HandleFunc("/services/", ds.handleResourceReq(cloudMonitor, processServices))
-	mux.HandleFunc("/slo-services/", ds.handleResourceReq(cloudMonitor, processSLOs))
-	mux.HandleFunc("/projects", ds.handleResourceReq(resourceManager, processProjects))
+	mux.HandleFunc("/metricDescriptors/", ds.handleResourceReq(cloudMonitor, processMetricDescriptors, metricDescriptorsTargetExp))
+	mux.HandleFunc("/services/", ds.handleResourceReq(cloudMonitor, processServices, servicesTargetExp))
+	mux.HandleFunc("/slo-services/", ds.handleResourceReq(cloudMonitor, processSLOs, sloTargetExp))
+	mux.HandleFunc("/projects", ds.handleResourceReq(resourceManager, processProjects, nil))
 	return mux
 }
 
@@ -50,9 +60,9 @@ func (ds *DataSource) getGCEDefaultProject(rw http.ResponseWriter, req *http.Req
 	writeResponseBytes(rw, http.StatusOK, encoded)
 }
 
-func (ds *DataSource) handleResourceReq(subDataSource string, responseFn processResponse) func(rw http.ResponseWriter, req *http.Request) {
+func (ds *DataSource) handleResourceReq(subDataSource string, responseFn processResponse, targetExp *regexp.Regexp) func(rw http.ResponseWriter, req *http.Request) {
 	return func(rw http.ResponseWriter, req *http.Request) {
-		client, code, err := ds.setRequestVariables(req, subDataSource)
+		client, code, err := ds.setRequestVariables(req, subDataSource, targetExp)
 		if err != nil {
 			writeErrorResponse(rw, code, fmt.Sprintf("unexpected error %v", err))
 			return
@@ -345,12 +355,15 @@ func buildResponse(responses []json.RawMessage, encoding string) ([]byte, error)
 	return encode(encoding, body)
 }
 
-func (ds *DataSource) setRequestVariables(req *http.Request, subDataSource string) (*http.Client, int, error) {
+func (ds *DataSource) setRequestVariables(req *http.Request, subDataSource string, targetExp *regexp.Regexp) (*http.Client, int, error) {
 	ds.logger.Debug("Received resource call", "url", req.URL.String(), "method", req.Method)
 
 	newPath, err := getTarget(req.URL.Path)
 	if err != nil {
 		return nil, http.StatusBadRequest, err
+	}
+	if targetExp != nil && !targetExp.MatchString(newPath) {
+		return nil, http.StatusBadRequest, fmt.Errorf("unexpected resource path %q", newPath)
 	}
 
 	serviceURL, err := url.Parse(ds.info.services[subDataSource].url)
