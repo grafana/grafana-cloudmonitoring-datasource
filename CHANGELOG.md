@@ -1,5 +1,9 @@
 # Changelog
 
+## 12.6.7
+
+- Security: Restrict resource calls to the expected Cloud Monitoring API paths ([#143](https://github.com/grafana/grafana-cloudmonitoring-datasource/pull/143))
+
 ## 12.6.6
 
 - Update dependencies
