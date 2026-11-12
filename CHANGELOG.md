@@ -1,7 +1,12 @@
 # Changelog
 
-## Unreleased
+## 12.6.7
 
+- Security: Restrict resource calls to the expected Cloud Monitoring API paths ([#143](https://github.com/grafana/grafana-cloudmonitoring-datasource/pull/143))
+
+## 12.6.6
+
+- Update dependencies
 - Fix a connection freeze between Grafana and the plugin under heavy query load by updating google.golang.org/grpc to v1.85.0 ([grpc/grpc-go#9330](https://github.com/grpc/grpc-go/issues/9330))
 - Update frontend and backend dependencies ([#139](https://github.com/grafana/grafana-cloudmonitoring-datasource/pull/139))
 
