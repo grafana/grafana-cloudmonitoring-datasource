@@ -241,7 +241,8 @@ export default class CloudMonitoringDatasource extends DataSourceWithBackend<
       !query.hasOwnProperty('metricQuery') &&
       !query.hasOwnProperty('sloQuery') &&
       !query.hasOwnProperty('timeSeriesQuery') &&
-      !query.hasOwnProperty('timeSeriesList')
+      !query.hasOwnProperty('timeSeriesList') &&
+      !query.hasOwnProperty('promQLQuery')
     ) {
       let filters = rest.filters || [];
       if (rest.metricType) {

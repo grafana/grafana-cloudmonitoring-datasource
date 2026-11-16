@@ -312,6 +312,27 @@ describe('Cloud Monitoring Datasource', () => {
             },
           },
         },
+        {
+          description: 'a PromQL query without timeSeriesList is left as PromQL',
+          input: {
+            refId: 'A',
+            queryType: QueryType.PROMQL,
+            intervalMs: 1000,
+            promQLQuery: {
+              projectName: 'test-project',
+              expr: 'up',
+              step: '10s',
+            },
+          },
+          expected: {
+            queryType: QueryType.PROMQL,
+            promQLQuery: {
+              projectName: 'test-project',
+              expr: 'up',
+              step: '10s',
+            },
+          },
+        },
       ].forEach((t) =>
         it(t.description, () => {
           const mockInstanceSettings = createMockInstanceSetttings();
