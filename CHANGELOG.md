@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Fix SQL Expressions rejecting Time Series List and SLO results by declaring the `timeseries-multi` frame type ([#137](https://github.com/grafana/grafana-cloudmonitoring-datasource/pull/137))
+
 ## 12.6.7
 
 - Security: Restrict resource calls to the expected Cloud Monitoring API paths ([#143](https://github.com/grafana/grafana-cloudmonitoring-datasource/pull/143))
